@@ -632,11 +632,20 @@ function byggSkaneleden(vikt, bbox, sektion) {
     const info = slInfo[e.s] || { farg: "#e08214", namn: e.s };
     const popup = `<strong>${e.n}</strong><br>${info.namn}${e.d ? " · " + e.d + " km" : ""}` +
       (e.w ? `<br><a href="${e.w}" target="_blank" rel="noopener">Etappinfo på skaneleden.se</a>` : "");
+    // Alla etappens segment hålls ihop så hela etappen kan markeras vid klick
+    const etappLinjer = [];
     e.l.forEach(seg => {
       if (bbox && !seg.some(p => p[0] > bbox[0] && p[0] < bbox[2] && p[1] > bbox[1] && p[1] < bbox[3])) return;
-      L.polyline(seg, { color: info.farg, weight: vikt, opacity: 0.8 })
+      const linje = L.polyline(seg, { color: info.farg, weight: vikt, opacity: 0.8 })
         .bindPopup(popup)
         .addTo(grupp);
+      etappLinjer.push(linje);
+      linje.on("popupopen", () => etappLinjer.forEach(l => {
+        l.setStyle({ color: "#ffd000", weight: vikt + 2, opacity: 1 });
+        l.bringToFront();
+      }));
+      linje.on("popupclose", () => etappLinjer.forEach(l =>
+        l.setStyle({ color: info.farg, weight: vikt, opacity: 0.8 })));
     });
   });
   return grupp;
