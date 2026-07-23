@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#2d4a35"/>
+  <!-- tält -->
+  <polygon points="256,96 448,416 64,416" fill="#f5f0e6"/>
+  <polygon points="256,96 322,206 190,206" fill="#dbe8d0"/>
+  <polygon points="256,224 328,416 184,416" fill="#2d4a35" opacity="0.85"/>
+  <!-- lägereld -->
+  <ellipse cx="256" cy="446" rx="120" ry="14" fill="#1e3325"/>
+  <path d="M256 330c14 26-28 30-28 55a28 28 0 0 0 56 0c0-25-42-29-28-55z" fill="#f76707" transform="translate(0,26)"/>
+</svg>

@@ -1,0 +1,17 @@
+{
+  "name": "Vindskydd & Hyddor i Skåne",
+  "short_name": "Vindskydd",
+  "description": "Karta över vindskydd, grillplatser, Skåneleden, bussar och matbutiker i Skåne — funkar offline.",
+  "lang": "sv",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1e3325",
+  "theme_color": "#2d4a35",
+  "icons": [
+    { "src": "ikon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "ikon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "ikon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
