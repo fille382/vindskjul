@@ -1,6 +1,6 @@
 // Service worker: gör kartan användbar offline.
 // Kärnfilerna cachas vid installation; kartrutor cachas allteftersom man tittar på dem.
-const KARN_CACHE = "vindskjul-karna-v4";
+const KARN_CACHE = "vindskjul-karna-v5";
 const TILE_CACHE = "vindskjul-tiles-v1";
 const MAX_TILES = 1500;
 
@@ -13,6 +13,7 @@ const KARN_FILER = [
   "./hallplatser_skane.js",
   "./skaneleden_led.js",
   "./butiker_skane.js",
+  "./gardsbutiker_skane.js",
   "./vatten_skane.js",
   "./sevardheter_skane.js",
   "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",

@@ -292,6 +292,7 @@
         <label class="filter-rad"><input type="checkbox" id="visa-hemkop"> <span class="prick" style="background:#e87b00;"></span> Hemköp (<span id="antal-hemkop"></span>)</label>
         <label class="filter-rad"><input type="checkbox" id="visa-citygross"> <span class="prick" style="background:#003da5;"></span> City Gross (<span id="antal-citygross"></span>)</label>
         <label class="filter-rad"><input type="checkbox" id="visa-ovrig"> <span class="prick" style="background:#7d7d7d;"></span> Övriga butiker (<span id="antal-ovrig"></span>)</label>
+        <label class="filter-rad"><input type="checkbox" id="visa-gardsbutik"> <span class="ikon-emoji">🧺</span> Gårdsbutiker (<span id="antal-gardsbutik"></span>)</label>
       </div>
       <div class="filter-knappar">
         <button class="legend-knapp" id="markera-alla">Markera alla</button>
@@ -312,6 +313,7 @@
 <script src="hallplatser_skane.js"></script>
 <script src="skaneleden_led.js"></script>
 <script src="butiker_skane.js"></script>
+<script src="gardsbutiker_skane.js"></script>
 <script src="vatten_skane.js"></script>
 <script src="sevardheter_skane.js"></script>
 <script>
@@ -767,6 +769,17 @@ Object.keys(kedjeInfo).forEach(k => {
   kopplaLager("visa-" + k, kluster, false);
 });
 
+// ---------- Gårdsbutiker ----------
+document.getElementById("antal-gardsbutik").textContent = gardsButiker.length;
+const klusterGardsbutiker = L.markerClusterGroup({ maxClusterRadius: 46, showCoverageOnHover: false });
+gardsButiker.forEach(b => {
+  klusterGardsbutiker.addLayer(
+    L.marker([b.la, b.lo], { icon: emojiIkon("🧺", "#5c940d") })
+      .bindPopup(`<strong>🧺 ${b.n || "Gårdsbutik"}</strong><br>Gårdsbutik`)
+  );
+});
+kopplaLager("visa-gardsbutik", klusterGardsbutiker, false);
+
 // Matbutiker och vattenstationer inom 1 km från valda slingor
 // visas som en del av slingans lager
 Object.keys(slGrupper).forEach(s => {
@@ -774,6 +787,11 @@ Object.keys(slGrupper).forEach(s => {
     const info = kedjeInfo[b.k];
     L.marker([b.la, b.lo], { icon: emojiIkon("🛒", info.farg) })
       .bindPopup(`<strong>🛒 ${b.n || info.namn}</strong><br>${info.namn}<br><em>Nära ${slInfo[s].namn}</em>`)
+      .addTo(slGrupper[s]);
+  });
+  platserNaraSektion(s, 1000, gardsButiker).forEach(b => {
+    L.marker([b.la, b.lo], { icon: emojiIkon("🧺", "#5c940d") })
+      .bindPopup(`<strong>🧺 ${b.n || "Gårdsbutik"}</strong><br>Gårdsbutik<br><em>Nära ${slInfo[s].namn}</em>`)
       .addTo(slGrupper[s]);
   });
   platserNaraSektion(s, 1000, vattenPunkter).forEach(p => {
