@@ -636,18 +636,26 @@ function byggSkaneleden(vikt, bbox, sektion) {
       (e.w ? `<br><a href="${e.w}" target="_blank" rel="noopener">Etappinfo på skaneleden.se</a>` : "");
     // Alla etappens segment hålls ihop så hela etappen kan markeras vid klick
     const etappLinjer = [];
+    const markera = () => etappLinjer.forEach(l => {
+      l.setStyle({ color: "#ffd000", weight: vikt + 2, opacity: 1 });
+      l.bringToFront();
+    });
+    const aterstall = () => etappLinjer.forEach(l =>
+      l.setStyle({ color: info.farg, weight: vikt, opacity: 0.8 }));
     e.l.forEach(seg => {
       if (bbox && !seg.some(p => p[0] > bbox[0] && p[0] < bbox[2] && p[1] > bbox[1] && p[1] < bbox[3])) return;
       const linje = L.polyline(seg, { color: info.farg, weight: vikt, opacity: 0.8 })
         .bindPopup(popup)
         .addTo(grupp);
+      // Osynlig bred linje ovanpå ger större träffyta för finger och mus
+      const klickyta = L.polyline(seg, { opacity: 0, weight: Math.max(vikt + 15, 18) })
+        .bindPopup(popup)
+        .addTo(grupp);
       etappLinjer.push(linje);
-      linje.on("popupopen", () => etappLinjer.forEach(l => {
-        l.setStyle({ color: "#ffd000", weight: vikt + 2, opacity: 1 });
-        l.bringToFront();
-      }));
-      linje.on("popupclose", () => etappLinjer.forEach(l =>
-        l.setStyle({ color: info.farg, weight: vikt, opacity: 0.8 })));
+      [linje, klickyta].forEach(l => {
+        l.on("popupopen", markera);
+        l.on("popupclose", aterstall);
+      });
     });
   });
   return grupp;
