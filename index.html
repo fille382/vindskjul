@@ -772,10 +772,31 @@ const klusterBussar = L.markerClusterGroup({
     className: "", iconSize: [34, 34]
   })
 });
+// På mobil/surfplatta öppnar länken Skånetrafiken-appen om den är installerad
+// (app.skanetrafiken.se är appens länkdomän), annars appens nedladdningssida.
+// Hållplatsnamnet kan kopieras med ett tryck och klistras in i appens sökfält.
+const arHandhallen = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+  (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform));
+function bussPopup(namn) {
+  const attrNamn = namn.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+  const kopiera = `<a href="#" class="kopiera-hallplats" data-namn="${attrNamn}">📋 Kopiera hållplatsnamn</a>`;
+  const resa = arHandhallen
+    ? `<a href="https://app.skanetrafiken.se/Journey" target="_blank" rel="noopener">Sök resa i Skånetrafiken-appen</a>`
+    : `<a href="https://www.skanetrafiken.se/sok-resa/" target="_blank" rel="noopener">Sök resa hos Skånetrafiken</a>`;
+  return `<strong>🚌 ${namn}</strong><br>${kopiera}<br>${resa}`;
+}
+document.addEventListener("click", e => {
+  const el = e.target.closest(".kopiera-hallplats");
+  if (!el) return;
+  e.preventDefault();
+  navigator.clipboard.writeText(el.dataset.namn)
+    .then(() => { el.textContent = "✓ Kopierat — klistra in i appens sökfält"; })
+    .catch(() => {});
+});
 bussHallplatser.forEach(p => {
   klusterBussar.addLayer(
     L.marker([p.la, p.lo], { icon: emojiIkon("🚌", "#6f5aa8") })
-      .bindPopup(`<strong>🚌 ${p.n || "Busshållplats"}</strong><br><a href="https://www.skanetrafiken.se/" target="_blank" rel="noopener">Sök resa hos Skånetrafiken</a>`)
+      .bindPopup(() => bussPopup(p.n || "Busshållplats"))
   );
 });
 kopplaLager("visa-bussar", klusterBussar, false);
