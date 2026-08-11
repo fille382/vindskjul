@@ -294,6 +294,10 @@
         <label class="filter-rad"><input type="checkbox" id="visa-ovrig"> <span class="prick" style="background:#7d7d7d;"></span> Övriga butiker (<span id="antal-ovrig"></span>)</label>
         <label class="filter-rad"><input type="checkbox" id="visa-gardsbutik"> <span class="ikon-emoji">🧺</span> Gårdsbutiker (<span id="antal-gardsbutik"></span>)</label>
       </div>
+      <div class="filter-rubrik">Offline</div>
+      <div class="filter-grupp">
+        <label class="filter-rad"><input type="checkbox" id="ladda-kartor"> <span class="ikon-emoji">📥</span> Spara kartrutor för offline</label>
+      </div>
       <div class="filter-knappar">
         <button class="legend-knapp" id="markera-alla">Markera alla</button>
         <button class="legend-knapp" id="avmarkera-alla">Avmarkera alla</button>
@@ -606,6 +610,20 @@ document.addEventListener("fullscreenchange", () =>
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
   navigator.serviceWorker.register("sw.js").catch(() => {});
 }
+// Kartnedladdning är avstängd som standard och slås på i hamburgarmenyn.
+// Service workern kommer inte åt localStorage, så valet speglas till Cache API.
+const laddaKartorBox = document.getElementById("ladda-kartor");
+laddaKartorBox.checked = localStorage.getItem("installning.laddaKartor") === "1";
+function sparaLaddaKartor() {
+  localStorage.setItem("installning.laddaKartor", laddaKartorBox.checked ? "1" : "0");
+  if ("caches" in window) {
+    caches.open("vindskjul-installningar-v1")
+      .then(c => c.put("./installning-ladda-kartor", new Response(laddaKartorBox.checked ? "1" : "0")))
+      .catch(() => {});
+  }
+}
+laddaKartorBox.addEventListener("change", sparaLaddaKartor);
+sparaLaddaKartor();
 
 // ---------- Vandringsleder (Waymarked Trails) ----------
 function lederLager() {
