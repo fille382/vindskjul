@@ -103,16 +103,23 @@
     background: #fff;
     border-radius: 14px;
     box-shadow: 0 6px 24px rgba(0,0,0,0.25);
-    padding: 1rem 1.15rem 1.1rem;
+    padding: 0 1.15rem 1.1rem;
     width: 265px;
     max-height: calc(100% - 24px);
     overflow-y: auto;
     font-size: 0.9rem;
   }
   #filter-panel.dold { display: none; }
+  /* Rubrikraden med krysset ligger kvar högst upp när panelen skrollas */
   .filter-huvud {
     display: flex; justify-content: space-between; align-items: center;
     margin-bottom: 0.5rem; color: var(--skog-mork);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #fff;
+    padding: 1rem 0 0.5rem;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
   }
   #stang-filter {
     border: none; background: none; font-size: 1.4rem; line-height: 1;
@@ -216,6 +223,10 @@
     justify-content: center;
   }
   .plats-knapp:hover { background: #f4f4f4; }
+  .plats-knapp.aktiv {
+    background: #d9e8f7;
+    border-color: #2166ac;
+  }
 
   .legend-knapp {
     border: 1px solid var(--skog);
@@ -293,6 +304,10 @@
         <label class="filter-rad"><input type="checkbox" id="visa-citygross"> <span class="prick" style="background:#003da5;"></span> City Gross (<span id="antal-citygross"></span>)</label>
         <label class="filter-rad"><input type="checkbox" id="visa-ovrig"> <span class="prick" style="background:#7d7d7d;"></span> Övriga butiker (<span id="antal-ovrig"></span>)</label>
         <label class="filter-rad"><input type="checkbox" id="visa-gardsbutik"> <span class="ikon-emoji">🧺</span> Gårdsbutiker (<span id="antal-gardsbutik"></span>)</label>
+      </div>
+      <div class="filter-rubrik">Offline</div>
+      <div class="filter-grupp">
+        <label class="filter-rad"><input type="checkbox" id="ladda-kartor"> <span class="ikon-emoji">📥</span> Spara kartrutor för offline</label>
       </div>
       <div class="filter-knappar">
         <button class="legend-knapp" id="markera-alla">Markera alla</button>
@@ -525,30 +540,57 @@ kopplaLager("visa-alla-vindskydd", klusterVindskydd, true);
 kopplaLager("visa-alla-grillar", klusterGrillar, false);
 
 // ---------- Min plats ----------
+// Ett klick startar kontinuerlig positionsuppföljning, ett klick till stänger av.
+// Kartan centreras bara vid första träffen så att man kan panorera fritt medan
+// pricken fortsätter följa var man är.
 function laggTillPlatsKontroll(map) {
-  let markor = null, cirkel = null;
+  let markor = null, cirkel = null, aktiv = false, forstaTraff = false;
   const Kontroll = L.Control.extend({
     options: { position: "topleft" },
     onAdd() {
       const knapp = L.DomUtil.create("button", "plats-knapp");
       knapp.innerHTML = "📍";
-      knapp.title = "Visa min plats";
+      knapp.title = "Följ min plats";
+      const stoppa = () => {
+        aktiv = false;
+        map.stopLocate();
+        knapp.innerHTML = "📍";
+        knapp.classList.remove("aktiv");
+        knapp.title = "Följ min plats";
+        if (markor) {
+          map.removeLayer(markor);
+          map.removeLayer(cirkel);
+          markor = cirkel = null;
+        }
+      };
       L.DomEvent.disableClickPropagation(knapp);
       L.DomEvent.on(knapp, "click", () => {
+        if (aktiv) { stoppa(); return; }
+        aktiv = true;
+        forstaTraff = true;
         knapp.innerHTML = "⏳";
-        map.locate({ setView: true, maxZoom: 14, enableHighAccuracy: true });
+        map.locate({ watch: true, enableHighAccuracy: true });
       });
       map.on("locationfound", e => {
+        if (!aktiv) return;
         knapp.innerHTML = "📍";
-        if (markor) { map.removeLayer(markor); map.removeLayer(cirkel); }
-        cirkel = L.circle(e.latlng, { radius: e.accuracy / 2, color: "#2166ac", weight: 1, fillOpacity: 0.12 }).addTo(map);
-        markor = L.circleMarker(e.latlng, { radius: 8, color: "#fff", weight: 2.5, fillColor: "#2166ac", fillOpacity: 1 })
-          .bindPopup("<strong>📍 Här är du!</strong>")
-          .addTo(map)
-          .openPopup();
+        knapp.classList.add("aktiv");
+        knapp.title = "Sluta följa min plats";
+        if (forstaTraff) map.setView(e.latlng, Math.max(map.getZoom(), 14));
+        if (!markor) {
+          cirkel = L.circle(e.latlng, { radius: e.accuracy / 2, color: "#2166ac", weight: 1, fillOpacity: 0.12 }).addTo(map);
+          markor = L.circleMarker(e.latlng, { radius: 8, color: "#fff", weight: 2.5, fillColor: "#2166ac", fillOpacity: 1 })
+            .bindPopup("<strong>📍 Här är du!</strong>")
+            .addTo(map);
+          if (forstaTraff) markor.openPopup();
+        } else {
+          cirkel.setLatLng(e.latlng).setRadius(e.accuracy / 2);
+          markor.setLatLng(e.latlng);
+        }
+        forstaTraff = false;
       });
       map.on("locationerror", () => {
-        knapp.innerHTML = "📍";
+        stoppa();
         alert("Kunde inte hämta din plats. Kontrollera att platstjänster är tillåtna i webbläsaren.");
       });
       return knapp;
@@ -598,6 +640,9 @@ window.addEventListener("afterprint", () => {
 });
 document.getElementById("stang-filter").addEventListener("click", () =>
   document.getElementById("filter-panel").classList.add("dold"));
+// Ett klick ute på kartan stänger också panelen
+karta.on("click", () =>
+  document.getElementById("filter-panel").classList.add("dold"));
 document.addEventListener("fullscreenchange", () =>
   setTimeout(() => karta.invalidateSize(), 150));
 
@@ -606,6 +651,20 @@ document.addEventListener("fullscreenchange", () =>
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
   navigator.serviceWorker.register("sw.js").catch(() => {});
 }
+// Kartnedladdning är avstängd som standard och slås på i hamburgarmenyn.
+// Service workern kommer inte åt localStorage, så valet speglas till Cache API.
+const laddaKartorBox = document.getElementById("ladda-kartor");
+laddaKartorBox.checked = localStorage.getItem("installning.laddaKartor") === "1";
+function sparaLaddaKartor() {
+  localStorage.setItem("installning.laddaKartor", laddaKartorBox.checked ? "1" : "0");
+  if ("caches" in window) {
+    caches.open("vindskjul-installningar-v1")
+      .then(c => c.put("./installning-ladda-kartor", new Response(laddaKartorBox.checked ? "1" : "0")))
+      .catch(() => {});
+  }
+}
+laddaKartorBox.addEventListener("change", sparaLaddaKartor);
+sparaLaddaKartor();
 
 // ---------- Vandringsleder (Waymarked Trails) ----------
 function lederLager() {
@@ -713,10 +772,31 @@ const klusterBussar = L.markerClusterGroup({
     className: "", iconSize: [34, 34]
   })
 });
+// På mobil/surfplatta öppnar länken Skånetrafiken-appen om den är installerad
+// (app.skanetrafiken.se är appens länkdomän), annars appens nedladdningssida.
+// Hållplatsnamnet kan kopieras med ett tryck och klistras in i appens sökfält.
+const arHandhallen = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+  (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform));
+function bussPopup(namn) {
+  const attrNamn = namn.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+  const kopiera = `<a href="#" class="kopiera-hallplats" data-namn="${attrNamn}">📋 Kopiera hållplatsnamn</a>`;
+  const resa = arHandhallen
+    ? `<a href="https://app.skanetrafiken.se/Journey" target="_blank" rel="noopener">Sök resa i Skånetrafiken-appen</a>`
+    : `<a href="https://www.skanetrafiken.se/sok-resa/" target="_blank" rel="noopener">Sök resa hos Skånetrafiken</a>`;
+  return `<strong>🚌 ${namn}</strong><br>${kopiera}<br>${resa}`;
+}
+document.addEventListener("click", e => {
+  const el = e.target.closest(".kopiera-hallplats");
+  if (!el) return;
+  e.preventDefault();
+  navigator.clipboard.writeText(el.dataset.namn)
+    .then(() => { el.textContent = "✓ Kopierat — klistra in i appens sökfält"; })
+    .catch(() => {});
+});
 bussHallplatser.forEach(p => {
   klusterBussar.addLayer(
     L.marker([p.la, p.lo], { icon: emojiIkon("🚌", "#6f5aa8") })
-      .bindPopup(`<strong>🚌 ${p.n || "Busshållplats"}</strong><br><a href="https://www.skanetrafiken.se/" target="_blank" rel="noopener">Sök resa hos Skånetrafiken</a>`)
+      .bindPopup(() => bussPopup(p.n || "Busshållplats"))
   );
 });
 kopplaLager("visa-bussar", klusterBussar, false);

@@ -10,7 +10,7 @@ En offline-kapabel karta (PWA) för friluftsliv i Skåne — vindskydd, grillpla
 - **Busshållplatser** (9 800+) för att ta sig till och från leden
 - **Matbutiker** grupperade per kedja (ICA, Coop, Lidl, Willys, Hemköp, City Gross)
 - **Sevärdheter**: utsiktspunkter, slott, fornminnen
-- **Offline-stöd**: service worker cachar sidan, all data och besökta kartrutor
+- **Offline-stöd**: service worker cachar sidan och all data; kartnedladdning (besökta kartrutor) är avstängd som standard och slås på i hamburgarmenyn
 - **Mobilanpassad**: ren kartvy i mobilen, installerbar på hemskärmen
 - **Utskrift**: skriv ut aktuellt kartutsnitt och ta med på papper
 - Filterval sparas mellan besök (localStorage)

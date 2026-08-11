@@ -1,7 +1,9 @@
 // Service worker: gör kartan användbar offline.
-// Kärnfilerna cachas vid installation; kartrutor cachas allteftersom man tittar på dem.
-const KARN_CACHE = "vindskjul-karna-v5";
+// Kärnfilerna cachas vid installation. Kartrutor sparas bara när
+// kartnedladdning är påslagen i hamburgarmenyn (avstängd som standard).
+const KARN_CACHE = "vindskjul-karna-v6";
 const TILE_CACHE = "vindskjul-tiles-v1";
+const INSTALLNINGS_CACHE = "vindskjul-installningar-v1";
 const MAX_TILES = 1500;
 
 const KARN_FILER = [
@@ -35,7 +37,8 @@ self.addEventListener("activate", e => {
   e.waitUntil(
     caches.keys()
       .then(namn => Promise.all(
-        namn.filter(n => n !== KARN_CACHE && n !== TILE_CACHE).map(n => caches.delete(n))
+        namn.filter(n => n !== KARN_CACHE && n !== TILE_CACHE && n !== INSTALLNINGS_CACHE)
+          .map(n => caches.delete(n))
       ))
       .then(() => self.clients.claim())
   );
@@ -51,15 +54,39 @@ async function trimmaCache(cache, max) {
   }
 }
 
-// Kartrutor & CDN-bibliotek: cache först (de ändras aldrig för samma URL).
-async function cacheForst(req, cacheNamn, max) {
+// CDN-bibliotek: cache först (de ändras aldrig för samma URL).
+async function cacheForst(req, cacheNamn) {
   const cache = await caches.open(cacheNamn);
   const traff = await cache.match(req);
   if (traff) return traff;
   const svar = await fetch(req);
   if (svar.ok || svar.type === "opaque") {
     cache.put(req, svar.clone());
-    if (max) trimmaCache(cache, max);
+  }
+  return svar;
+}
+
+// Sidan speglar menyvalet hit via Cache API — service workern saknar localStorage.
+async function kartnedladdningPa() {
+  try {
+    const cache = await caches.open(INSTALLNINGS_CACHE);
+    const svar = await cache.match("./installning-ladda-kartor");
+    return svar ? (await svar.text()) === "1" : false;
+  } catch {
+    return false;
+  }
+}
+
+// Kartrutor: redan sparade rutor används alltid, men nya rutor laddas bara
+// ner till cachen när kartnedladdning är påslagen.
+async function hanteraTile(req) {
+  const cache = await caches.open(TILE_CACHE);
+  const traff = await cache.match(req);
+  if (traff) return traff;
+  const svar = await fetch(req);
+  if ((svar.ok || svar.type === "opaque") && await kartnedladdningPa()) {
+    cache.put(req, svar.clone());
+    trimmaCache(cache, MAX_TILES);
   }
   return svar;
 }
@@ -91,7 +118,7 @@ self.addEventListener("fetch", e => {
   const arTile = url.hostname.endsWith("tile.openstreetmap.org") ||
                  url.hostname.endsWith("waymarkedtrails.org");
   if (arTile) {
-    e.respondWith(cacheForst(e.request, TILE_CACHE, MAX_TILES));
+    e.respondWith(hanteraTile(e.request));
   } else if (url.hostname === "unpkg.com") {
     e.respondWith(cacheForst(e.request, KARN_CACHE));
   } else {
