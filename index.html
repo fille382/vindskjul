@@ -103,16 +103,23 @@
     background: #fff;
     border-radius: 14px;
     box-shadow: 0 6px 24px rgba(0,0,0,0.25);
-    padding: 1rem 1.15rem 1.1rem;
+    padding: 0 1.15rem 1.1rem;
     width: 265px;
     max-height: calc(100% - 24px);
     overflow-y: auto;
     font-size: 0.9rem;
   }
   #filter-panel.dold { display: none; }
+  /* Rubrikraden med krysset ligger kvar högst upp när panelen skrollas */
   .filter-huvud {
     display: flex; justify-content: space-between; align-items: center;
     margin-bottom: 0.5rem; color: var(--skog-mork);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #fff;
+    padding: 1rem 0 0.5rem;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
   }
   #stang-filter {
     border: none; background: none; font-size: 1.4rem; line-height: 1;
@@ -632,6 +639,9 @@ window.addEventListener("afterprint", () => {
   karta.invalidateSize();
 });
 document.getElementById("stang-filter").addEventListener("click", () =>
+  document.getElementById("filter-panel").classList.add("dold"));
+// Ett klick ute på kartan stänger också panelen
+karta.on("click", () =>
   document.getElementById("filter-panel").classList.add("dold"));
 document.addEventListener("fullscreenchange", () =>
   setTimeout(() => karta.invalidateSize(), 150));
