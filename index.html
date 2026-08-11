@@ -152,6 +152,7 @@
   body.utskriftslage header,
   body.utskriftslage footer,
   body.utskriftslage #filter-panel,
+  body.utskriftslage #intro-ruta,
   body.utskriftslage .leaflet-control-zoom,
   body.utskriftslage .plats-knapp { display: none !important; }
   body.utskriftslage main { max-width: none; padding: 0; }
@@ -167,7 +168,7 @@
     -webkit-print-color-adjust: exact;
   }
   @media print {
-    header, footer, #filter-panel, .leaflet-control-zoom, .plats-knapp { display: none !important; }
+    header, footer, #filter-panel, #intro-ruta, .leaflet-control-zoom, .plats-knapp { display: none !important; }
     main { max-width: none; padding: 0; }
     #karta-wrap { margin: 0; page-break-inside: avoid; }
     #karta { height: 178mm; min-height: 0; border-radius: 0; box-shadow: none; }
@@ -228,6 +229,45 @@
     border-color: #2166ac;
   }
 
+  /* ---------- Intro vid första besöket ---------- */
+  #intro-ruta {
+    position: absolute;
+    top: 14px;
+    right: 58px;
+    z-index: 1100;
+    background: var(--skog-mork);
+    color: var(--sand);
+    border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+    padding: 1rem 1.15rem;
+    width: min(300px, calc(100vw - 90px));
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+  #intro-ruta::after {
+    content: "";
+    position: absolute;
+    top: 15px;
+    right: -9px;
+    border-top: 9px solid transparent;
+    border-bottom: 9px solid transparent;
+    border-left: 9px solid var(--skog-mork);
+  }
+  #intro-ruta p { margin: 0.35rem 0 0; }
+  #intro-ok {
+    margin-top: 0.7rem;
+    border: none;
+    background: var(--mossa);
+    color: #fff;
+    border-radius: 999px;
+    padding: 0.35rem 1.1rem;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  #intro-ok:hover { background: #5c7d50; }
+
   .legend-knapp {
     border: 1px solid var(--skog);
     background: #fff;
@@ -263,6 +303,11 @@
 
   <div id="karta-wrap">
     <div id="karta"></div>
+    <div id="intro-ruta" hidden>
+      <strong>👋 Välkommen!</strong>
+      <p>Kartan startar avskalad så att den är snabb. Tryck på <strong>☰-knappen</strong> här uppe till höger för att tända Skåneledens slingor, busshållplatser, matbutiker och fler lager.</p>
+      <button id="intro-ok">Okej, jag förstår</button>
+    </div>
     <div id="filter-panel" class="dold">
       <div class="filter-huvud">
         <strong>Visa på kartan</strong>
@@ -279,13 +324,13 @@
       </div>
       <div class="filter-rubrik">Skåneledens slingor</div>
       <div class="filter-grupp">
-        <label class="filter-rad"><input type="checkbox" id="visa-sl1" checked> <span class="prick" style="background:#c0392b;"></span> SL1 Kust till kust</label>
-        <label class="filter-rad"><input type="checkbox" id="visa-sl2" checked> <span class="prick" style="background:#2166ac;"></span> SL2 Nord till syd</label>
-        <label class="filter-rad"><input type="checkbox" id="visa-sl3" checked> <span class="prick" style="background:#35978f;"></span> SL3 Ås till ås</label>
-        <label class="filter-rad"><input type="checkbox" id="visa-sl4" checked> <span class="prick" style="background:#e08214;"></span> SL4 Österlen</label>
-        <label class="filter-rad"><input type="checkbox" id="visa-sl5" checked> <span class="prick" style="background:#762a83;"></span> SL5 Öresund</label>
-        <label class="filter-rad"><input type="checkbox" id="visa-sl6" checked> <span class="prick" style="background:#8c510a;"></span> SL6 Vattenriket</label>
-        <label class="filter-rad"><input type="checkbox" id="visa-sl7" checked> <span class="prick" style="background:#c2185b;"></span> SL7 Sydkust</label>
+        <label class="filter-rad"><input type="checkbox" id="visa-sl1"> <span class="prick" style="background:#c0392b;"></span> SL1 Kust till kust</label>
+        <label class="filter-rad"><input type="checkbox" id="visa-sl2"> <span class="prick" style="background:#2166ac;"></span> SL2 Nord till syd</label>
+        <label class="filter-rad"><input type="checkbox" id="visa-sl3"> <span class="prick" style="background:#35978f;"></span> SL3 Ås till ås</label>
+        <label class="filter-rad"><input type="checkbox" id="visa-sl4"> <span class="prick" style="background:#e08214;"></span> SL4 Österlen</label>
+        <label class="filter-rad"><input type="checkbox" id="visa-sl5"> <span class="prick" style="background:#762a83;"></span> SL5 Öresund</label>
+        <label class="filter-rad"><input type="checkbox" id="visa-sl6"> <span class="prick" style="background:#8c510a;"></span> SL6 Vattenriket</label>
+        <label class="filter-rad"><input type="checkbox" id="visa-sl7"> <span class="prick" style="background:#c2185b;"></span> SL7 Sydkust</label>
       </div>
       <div class="filter-rubrik">Sevärdheter</div>
       <div class="filter-grupp">
@@ -615,8 +660,10 @@ function knappKontroll(map, position, html, titel, vidKlick) {
   });
   map.addControl(new Kontroll());
 }
-knappKontroll(karta, "topright", "&#9776;", "Filter och lager", () =>
-  document.getElementById("filter-panel").classList.toggle("dold"));
+knappKontroll(karta, "topright", "&#9776;", "Filter och lager", () => {
+  stangIntro();
+  document.getElementById("filter-panel").classList.toggle("dold");
+});
 knappKontroll(karta, "topright", "&#x26F6;", "Fullskärm", () => {
   const wrap = document.getElementById("karta-wrap");
   if (document.fullscreenElement) {
@@ -638,6 +685,21 @@ window.addEventListener("afterprint", () => {
   document.body.classList.remove("utskriftslage");
   karta.invalidateSize();
 });
+// ---------- Intro vid första besöket ----------
+// Slingorna är släckta från start så att sidan laddar snabbt. En pratbubbla
+// visar var lagren tänds — den syns bara tills man klickat bort den eller
+// öppnat filtermenyn, och kommer inte tillbaka vid nästa besök.
+const introRuta = document.getElementById("intro-ruta");
+function stangIntro() {
+  if (introRuta.hidden) return;
+  introRuta.hidden = true;
+  localStorage.setItem("intro.visad", "1");
+}
+if (localStorage.getItem("intro.visad") !== "1") {
+  introRuta.hidden = false;
+  document.getElementById("intro-ok").addEventListener("click", stangIntro);
+}
+
 document.getElementById("stang-filter").addEventListener("click", () =>
   document.getElementById("filter-panel").classList.add("dold"));
 // Ett klick ute på kartan stänger också panelen
@@ -758,7 +820,7 @@ Object.keys(slInfo).forEach(s => {
       .bindPopup(osmPopup(p) + `<br><em>Nära ${slInfo[s].namn}</em>`)
       .addTo(slGrupper[s]);
   });
-  kopplaLager("visa-" + s.toLowerCase(), slGrupper[s], true);
+  kopplaLager("visa-" + s.toLowerCase(), slGrupper[s], false);
 });
 
 // ---------- Busshållplatser ----------
