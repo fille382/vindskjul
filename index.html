@@ -216,6 +216,10 @@
     justify-content: center;
   }
   .plats-knapp:hover { background: #f4f4f4; }
+  .plats-knapp.aktiv {
+    background: #d9e8f7;
+    border-color: #2166ac;
+  }
 
   .legend-knapp {
     border: 1px solid var(--skog);
@@ -529,30 +533,57 @@ kopplaLager("visa-alla-vindskydd", klusterVindskydd, true);
 kopplaLager("visa-alla-grillar", klusterGrillar, false);
 
 // ---------- Min plats ----------
+// Ett klick startar kontinuerlig positionsuppföljning, ett klick till stänger av.
+// Kartan centreras bara vid första träffen så att man kan panorera fritt medan
+// pricken fortsätter följa var man är.
 function laggTillPlatsKontroll(map) {
-  let markor = null, cirkel = null;
+  let markor = null, cirkel = null, aktiv = false, forstaTraff = false;
   const Kontroll = L.Control.extend({
     options: { position: "topleft" },
     onAdd() {
       const knapp = L.DomUtil.create("button", "plats-knapp");
       knapp.innerHTML = "📍";
-      knapp.title = "Visa min plats";
+      knapp.title = "Följ min plats";
+      const stoppa = () => {
+        aktiv = false;
+        map.stopLocate();
+        knapp.innerHTML = "📍";
+        knapp.classList.remove("aktiv");
+        knapp.title = "Följ min plats";
+        if (markor) {
+          map.removeLayer(markor);
+          map.removeLayer(cirkel);
+          markor = cirkel = null;
+        }
+      };
       L.DomEvent.disableClickPropagation(knapp);
       L.DomEvent.on(knapp, "click", () => {
+        if (aktiv) { stoppa(); return; }
+        aktiv = true;
+        forstaTraff = true;
         knapp.innerHTML = "⏳";
-        map.locate({ setView: true, maxZoom: 14, enableHighAccuracy: true });
+        map.locate({ watch: true, enableHighAccuracy: true });
       });
       map.on("locationfound", e => {
+        if (!aktiv) return;
         knapp.innerHTML = "📍";
-        if (markor) { map.removeLayer(markor); map.removeLayer(cirkel); }
-        cirkel = L.circle(e.latlng, { radius: e.accuracy / 2, color: "#2166ac", weight: 1, fillOpacity: 0.12 }).addTo(map);
-        markor = L.circleMarker(e.latlng, { radius: 8, color: "#fff", weight: 2.5, fillColor: "#2166ac", fillOpacity: 1 })
-          .bindPopup("<strong>📍 Här är du!</strong>")
-          .addTo(map)
-          .openPopup();
+        knapp.classList.add("aktiv");
+        knapp.title = "Sluta följa min plats";
+        if (forstaTraff) map.setView(e.latlng, Math.max(map.getZoom(), 14));
+        if (!markor) {
+          cirkel = L.circle(e.latlng, { radius: e.accuracy / 2, color: "#2166ac", weight: 1, fillOpacity: 0.12 }).addTo(map);
+          markor = L.circleMarker(e.latlng, { radius: 8, color: "#fff", weight: 2.5, fillColor: "#2166ac", fillOpacity: 1 })
+            .bindPopup("<strong>📍 Här är du!</strong>")
+            .addTo(map);
+          if (forstaTraff) markor.openPopup();
+        } else {
+          cirkel.setLatLng(e.latlng).setRadius(e.accuracy / 2);
+          markor.setLatLng(e.latlng);
+        }
+        forstaTraff = false;
       });
       map.on("locationerror", () => {
-        knapp.innerHTML = "📍";
+        stoppa();
         alert("Kunde inte hämta din plats. Kontrollera att platstjänster är tillåtna i webbläsaren.");
       });
       return knapp;
