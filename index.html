@@ -641,6 +641,16 @@ function konturIkon(emoji, kantFarg) {
     iconAnchor: [13, 13]
   });
 }
+// Vindskydd och grillplats på samma punkt visas som en markör med båda
+// symbolerna i stället för två ikoner ovanpå varandra.
+function kombiIkon() {
+  return L.divIcon({
+    className: "",
+    html: `<div style="box-sizing:border-box;width:42px;height:26px;border-radius:13px;background:rgba(255,255,255,0.72);display:flex;align-items:center;justify-content:center;gap:1px;font-size:12px;line-height:1;">⛺${eldSvg}</div>`,
+    iconSize: [42, 26],
+    iconAnchor: [21, 13]
+  });
+}
 
 // Central lagerhantering: varje kryssruta styr ett lager, och
 // "Markera/Avmarkera alla" går igenom hela registret.
@@ -1003,10 +1013,29 @@ function byggSektionsLager(s) {
     sevardhet: kategoriKluster("📸")
   };
   const markorer = { vindskydd: [], grill: [], vatten: [], butik: [], gardsbutik: [], sevardhet: [] };
-  platserNaraSektion(s, 1000, osmPlatser).forEach(p => {
-    markorer[p.t === "vindskydd" ? "vindskydd" : "grill"].push(
-      L.marker([p.la, p.lo], { icon: konturIkon(p.t === "vindskydd" ? "⛺" : eldSvg, slInfo[s].farg) })
+  // Grillplats på samma punkt som ett vindskydd (~11 m) slås ihop till en
+  // kombimarkör så ikonerna inte hamnar ovanpå varandra.
+  const naraOsm = platserNaraSektion(s, 1000, osmPlatser);
+  const punktNyckel = p => p.la.toFixed(4) + "," + p.lo.toFixed(4);
+  const grillPaPunkt = new Map();
+  naraOsm.forEach(p => { if (p.t === "grill") grillPaPunkt.set(punktNyckel(p), p); });
+  const ihopslagna = new Set();
+  naraOsm.forEach(p => {
+    if (p.t !== "vindskydd") return;
+    const grill = grillPaPunkt.get(punktNyckel(p));
+    if (grill) {
+      ihopslagna.add(grill);
+      markorer.vindskydd.push(L.marker([p.la, p.lo], { icon: kombiIkon() })
+        .bindPopup(() => `<strong>⛺ ${p.n || "Vindskydd"}</strong><br>Vindskydd med grillplats<br><em>Nära ${slInfo[s].namn}</em>`));
+    } else {
+      markorer.vindskydd.push(L.marker([p.la, p.lo], { icon: konturIkon("⛺", slInfo[s].farg) })
         .bindPopup(() => osmPopup(p) + `<br><em>Nära ${slInfo[s].namn}</em>`));
+    }
+  });
+  naraOsm.forEach(p => {
+    if (p.t !== "grill" || ihopslagna.has(p)) return;
+    markorer.grill.push(L.marker([p.la, p.lo], { icon: konturIkon(eldSvg, slInfo[s].farg) })
+      .bindPopup(() => osmPopup(p) + `<br><em>Nära ${slInfo[s].namn}</em>`));
   });
   platserNaraSektion(s, 1000, matButiker).forEach(b => {
     const info = kedjeInfo[b.k];
