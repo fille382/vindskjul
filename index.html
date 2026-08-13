@@ -966,43 +966,58 @@ function platserNaraSektion(sektion, maxMeter, lista) {
 
 // En sektions lager (linjer + vindskydd, butiker, vatten och sevärdheter
 // inom 1 km från leden) byggs först när sektionen slås på. Närmarkörerna
-// klustras i ledens färg så att platser som ligger tätt slås ihop till en
-// bubbla som expanderar vid zoom, i stället för att staplas på varandra.
+// klustras per kategori i ledens färg — platser som ligger tätt slås ihop
+// till en bubbla med kategorins symbol och antal, som expanderar vid zoom.
 function byggSektionsLager(s) {
-  const kluster = L.markerClusterGroup({
+  const kategoriKluster = symbol => L.markerClusterGroup({
     maxClusterRadius: 46,
     showCoverageOnHover: false,
     chunkedLoading: true,
     iconCreateFunction: c => L.divIcon({
-      html: `<div style="background:${slInfo[s].farg};color:#fff;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.3);">${c.getChildCount()}</div>`,
-      className: "", iconSize: [30, 30]
+      html: `<div style="background:${slInfo[s].farg};color:#fff;border-radius:14px;height:28px;padding:0 9px;display:inline-flex;align-items:center;justify-content:center;gap:3px;font-size:12px;font-weight:600;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.3);white-space:nowrap;">${symbol} ${c.getChildCount()}</div>`,
+      className: "", iconSize: null, iconAnchor: [24, 14]
     })
   });
-  const markorer = [];
+  const kluster = {
+    vindskydd: kategoriKluster("⛺"),
+    grill: kategoriKluster(eldSvg),
+    vatten: kategoriKluster("💧"),
+    butik: kategoriKluster("🛒"),
+    gardsbutik: kategoriKluster("🧺"),
+    sevardhet: kategoriKluster("📸")
+  };
+  const markorer = { vindskydd: [], grill: [], vatten: [], butik: [], gardsbutik: [], sevardhet: [] };
   platserNaraSektion(s, 1000, osmPlatser).forEach(p => {
-    markorer.push(L.marker([p.la, p.lo], { icon: emojiIkon(p.t === "vindskydd" ? "⛺" : eldSvg, slInfo[s].farg) })
-      .bindPopup(() => osmPopup(p) + `<br><em>Nära ${slInfo[s].namn}</em>`));
+    markorer[p.t === "vindskydd" ? "vindskydd" : "grill"].push(
+      L.marker([p.la, p.lo], { icon: emojiIkon(p.t === "vindskydd" ? "⛺" : eldSvg, slInfo[s].farg) })
+        .bindPopup(() => osmPopup(p) + `<br><em>Nära ${slInfo[s].namn}</em>`));
   });
   platserNaraSektion(s, 1000, matButiker).forEach(b => {
     const info = kedjeInfo[b.k];
-    markorer.push(L.marker([b.la, b.lo], { icon: emojiIkon("🛒", info.farg) })
+    markorer.butik.push(L.marker([b.la, b.lo], { icon: emojiIkon("🛒", info.farg) })
       .bindPopup(() => `<strong>🛒 ${b.n || info.namn}</strong><br>${info.namn}<br><em>Nära ${slInfo[s].namn}</em>`));
   });
   platserNaraSektion(s, 1000, gardsButiker).forEach(b => {
-    markorer.push(L.marker([b.la, b.lo], { icon: emojiIkon("🧺", "#5c940d") })
+    markorer.gardsbutik.push(L.marker([b.la, b.lo], { icon: emojiIkon("🧺", "#5c940d") })
       .bindPopup(() => `<strong>🧺 ${b.n || "Gårdsbutik"}</strong><br>Gårdsbutik<br><em>Nära ${slInfo[s].namn}</em>`));
   });
   platserNaraSektion(s, 1000, vattenPunkter).forEach(p => {
-    markorer.push(L.marker([p.la, p.lo], { icon: emojiIkon("💧", slInfo[s].farg) })
+    markorer.vatten.push(L.marker([p.la, p.lo], { icon: emojiIkon("💧", slInfo[s].farg) })
       .bindPopup(() => `<strong>💧 ${p.n || "Dricksvatten"}</strong><br><em>Nära ${slInfo[s].namn}</em>`));
   });
   platserNaraSektion(s, 1000, sevardheter).forEach(p => {
     const info = sevInfo[p.k];
-    markorer.push(L.marker([p.la, p.lo], { icon: emojiIkon(info.emoji, slInfo[s].farg) })
+    markorer.sevardhet.push(L.marker([p.la, p.lo], { icon: emojiIkon(info.emoji, slInfo[s].farg) })
       .bindPopup(() => `<strong>${info.emoji} ${p.n || info.namn}</strong><br>${info.namn}<br><em>Nära ${slInfo[s].namn}</em>`));
   });
-  kluster.addLayers(markorer);
-  return L.layerGroup([byggSkaneleden(3, null, s), kluster]);
+  const delar = [byggSkaneleden(3, null, s)];
+  Object.keys(kluster).forEach(k => {
+    if (markorer[k].length) {
+      kluster[k].addLayers(markorer[k]);
+      delar.push(kluster[k]);
+    }
+  });
+  return L.layerGroup(delar);
 }
 const slAntalVindskydd = {};
 Object.keys(slInfo).forEach(s => {
