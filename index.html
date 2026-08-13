@@ -469,16 +469,20 @@
   Byggd med kärlek till skånsk natur · Källor: <a href="https://skanskalandskap.se/">Stiftelsen Skånska Landskap</a>, <a href="https://www.skaneleden.se/">Skåneleden</a>, <a href="https://vindskyddskartan.se/">Vindskyddskartan</a> · Kartdata © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>
 </footer>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-<script src="platser_skane.js"></script>
-<script src="hallplatser_skane.js"></script>
-<script src="skaneleden_led.js"></script>
-<script src="butiker_skane.js"></script>
-<script src="gardsbutiker_skane.js"></script>
-<script src="vatten_skane.js"></script>
-<script src="sevardheter_skane.js"></script>
+<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script defer src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script defer src="platser_skane.js"></script>
+<script defer src="hallplatser_skane.js"></script>
+<script defer src="skaneleden_led.js"></script>
+<script defer src="butiker_skane.js"></script>
+<script defer src="gardsbutiker_skane.js"></script>
+<script defer src="vatten_skane.js"></script>
+<script defer src="sevardheter_skane.js"></script>
 <script>
+// Dataskripten ovan laddas med defer så sidan kan ritas medan de hämtas.
+// Deferrade skript kör alltid klart före DOMContentLoaded, så här inne
+// finns alla globaler (L, bussHallplatser, skaneledenEtapper osv.).
+document.addEventListener("DOMContentLoaded", () => {
 const vindskydd = [
   {
     namn: "Eksholmssjön",
@@ -631,16 +635,31 @@ function emojiIkon(emoji, kantFarg) {
 // Central lagerhantering: varje kryssruta styr ett lager, och
 // "Markera/Avmarkera alla" går igenom hela registret.
 // Valen sparas i localStorage så de överlever omladdning.
+//
+// Tunga lager skickas in som en byggfunktion i stället för ett färdigt
+// lager — då byggs markörerna först den gång lagret faktiskt slås på,
+// vilket gör sidstarten mycket snabbare på mobil.
 const lagerBoxar = [];
-function kopplaLager(boxId, lager, paDirekt) {
+function efterForstaRitning(fn) {
+  if ("requestIdleCallback" in window) requestIdleCallback(fn, { timeout: 1500 });
+  else setTimeout(fn, 50);
+}
+function kopplaLager(boxId, lagerEllerBygg, paDirekt) {
   const box = document.getElementById(boxId);
+  let lager = typeof lagerEllerBygg === "function" ? null : lagerEllerBygg;
+  const hamta = () => lager || (lager = lagerEllerBygg());
   const sparat = localStorage.getItem("lager." + boxId);
   const pa = sparat === null ? !!paDirekt : sparat === "1";
   box.checked = pa;
-  if (pa) karta.addLayer(lager);
+  if (pa) {
+    // Återställda "på"-lager byggs efter första ritningen så sidan syns direkt
+    if (lager) karta.addLayer(lager);
+    else efterForstaRitning(() => box.checked && karta.addLayer(hamta()));
+  }
   box.addEventListener("change", e => {
     localStorage.setItem("lager." + boxId, e.target.checked ? "1" : "0");
-    e.target.checked ? karta.addLayer(lager) : karta.removeLayer(lager);
+    if (e.target.checked) karta.addLayer(hamta());
+    else if (lager) karta.removeLayer(lager);
   });
   lagerBoxar.push(box);
 }
@@ -659,7 +678,7 @@ function laggTillMarkorer(lista, kantFarg, etikett) {
   lista.forEach(p => {
     const ikon = p.emoji === "🔥" ? eldSvg : p.emoji;
     L.marker([p.lat, p.lng], { icon: emojiIkon(ikon, kantFarg) })
-      .bindPopup(rikPopup(p, etikett), { maxWidth: 290 })
+      .bindPopup(() => rikPopup(p, etikett), { maxWidth: 290 })
       .addTo(grupp);
   });
   return grupp;
@@ -677,13 +696,11 @@ function osmPopup(p) {
   return `<strong>${ikon} ${namn}</strong>` + (p.n ? `<br>${typ}` : "");
 }
 function byggKluster(lista, farg) {
-  const kluster = L.markerClusterGroup({ maxClusterRadius: 46, showCoverageOnHover: false });
-  lista.forEach(p => {
-    kluster.addLayer(
-      L.marker([p.la, p.lo], { icon: emojiIkon(p.t === "vindskydd" ? "⛺" : eldSvg, farg) })
-        .bindPopup(osmPopup(p))
-    );
-  });
+  const kluster = L.markerClusterGroup({ maxClusterRadius: 46, showCoverageOnHover: false, chunkedLoading: true });
+  kluster.addLayers(lista.map(p =>
+    L.marker([p.la, p.lo], { icon: emojiIkon(p.t === "vindskydd" ? "⛺" : eldSvg, farg) })
+      .bindPopup(() => osmPopup(p))
+  ));
   return kluster;
 }
 const allaVindskydd = osmPlatser.filter(p => p.t === "vindskydd");
@@ -691,10 +708,8 @@ const allaGrillar = osmPlatser.filter(p => p.t === "grill");
 document.getElementById("antal-vindskydd").textContent = allaVindskydd.length;
 document.getElementById("antal-grillar").textContent = allaGrillar.length;
 
-const klusterVindskydd = byggKluster(allaVindskydd, "#2d4a35");
-const klusterGrillar = byggKluster(allaGrillar, "#c47a2c");
-kopplaLager("visa-alla-vindskydd", klusterVindskydd, true);
-kopplaLager("visa-alla-grillar", klusterGrillar, false);
+kopplaLager("visa-alla-vindskydd", () => byggKluster(allaVindskydd, "#2d4a35"), true);
+kopplaLager("visa-alla-grillar", () => byggKluster(allaGrillar, "#c47a2c"), false);
 
 // ---------- Min plats ----------
 // Ett klick startar kontinuerlig positionsuppföljning, ett klick till stänger av.
@@ -847,10 +862,26 @@ function lederLager() {
     attribution: 'Leder: <a href="https://hiking.waymarkedtrails.org/">Waymarked Trails</a> (CC-BY-SA)'
   });
 }
-const lederOversikt = lederLager();
-kopplaLager("visa-leder", lederOversikt, false);
+kopplaLager("visa-leder", lederLager, false);
 
 // ---------- Skåneleden (exakt dragning från OSM) ----------
+// Kategori-info används både av sektionslagren här och av
+// sevärdhets-/butikslagren längre ner.
+const sevInfo = {
+  utsikt: { namn: "Utsiktspunkt", emoji: "🔭", farg: "#0b7285" },
+  slott: { namn: "Slott/borg", emoji: "🏰", farg: "#9c36b5" },
+  fornminne: { namn: "Fornminne", emoji: "🗿", farg: "#795548" },
+  ovrigt: { namn: "Sevärdhet", emoji: "📸", farg: "#e64980" }
+};
+const kedjeInfo = {
+  ica: { namn: "ICA", farg: "#e3000b" },
+  coop: { namn: "Coop", farg: "#00a142" },
+  lidl: { namn: "Lidl", farg: "#0050aa" },
+  willys: { namn: "Willys", farg: "#1d1d1b" },
+  hemkop: { namn: "Hemköp", farg: "#e87b00" },
+  citygross: { namn: "City Gross", farg: "#003da5" },
+  ovrig: { namn: "Övrig butik", farg: "#7d7d7d" }
+};
 const slInfo = {
   SL1: { farg: "#c0392b", namn: "SL1 Kust till kustleden" },
   SL2: { farg: "#2166ac", namn: "SL2 Nord till sydleden" },
@@ -860,6 +891,10 @@ const slInfo = {
   SL6: { farg: "#8c510a", namn: "SL6 Vattenriket" },
   SL7: { farg: "#c2185b", namn: "SL7 Sydkustleden" }
 };
+// Lederna ritas på canvas i stället för SVG — mycket billigare att panorera
+// och zooma på mobil. tolerance ger stor träffyta för finger och mus utan
+// den extra osynliga klicklinje som tidigare dubblade antalet linjer.
+const ledRenderare = L.canvas({ tolerance: 12 });
 function byggSkaneleden(vikt, bbox, sektion) {
   const grupp = L.layerGroup();
   skaneledenEtapper.forEach(e => {
@@ -877,18 +912,12 @@ function byggSkaneleden(vikt, bbox, sektion) {
       l.setStyle({ color: info.farg, weight: vikt, opacity: 0.8 }));
     e.l.forEach(seg => {
       if (bbox && !seg.some(p => p[0] > bbox[0] && p[0] < bbox[2] && p[1] > bbox[1] && p[1] < bbox[3])) return;
-      const linje = L.polyline(seg, { color: info.farg, weight: vikt, opacity: 0.8 })
-        .bindPopup(popup)
-        .addTo(grupp);
-      // Osynlig bred linje ovanpå ger större träffyta för finger och mus
-      const klickyta = L.polyline(seg, { opacity: 0, weight: Math.max(vikt + 15, 18) })
+      const linje = L.polyline(seg, { color: info.farg, weight: vikt, opacity: 0.8, renderer: ledRenderare })
         .bindPopup(popup)
         .addTo(grupp);
       etappLinjer.push(linje);
-      [linje, klickyta].forEach(l => {
-        l.on("popupopen", markera);
-        l.on("popupclose", aterstall);
-      });
+      linje.on("popupopen", markera);
+      linje.on("popupclose", aterstall);
     });
   });
   return grupp;
@@ -900,15 +929,26 @@ function avstandMeter(la1, lo1, la2, lo2) {
   const dy = (la2 - la1) * 111320;  // meter per grad latitud
   return Math.sqrt(dx * dx + dy * dy);
 }
+// Indexet byggs en gång per sektion och återanvänds för alla kategorier
+// (vindskydd, butiker, vatten, sevärdheter) i stället för att byggas om
+// vid varje anrop.
+const sektionsIndexCache = {};
+const nyckel = (cLa, cLo) => cLa + "_" + cLo;
+function sektionsIndex(sektion) {
+  if (!sektionsIndexCache[sektion]) {
+    const celler = new Map();
+    skaneledenEtapper.filter(e => e.s === sektion).forEach(e =>
+      e.l.forEach(seg => seg.forEach(p => {
+        const ny = nyckel(Math.round(p[0] * 90), Math.round(p[1] * 50));
+        if (!celler.has(ny)) celler.set(ny, []);
+        celler.get(ny).push(p);
+      })));
+    sektionsIndexCache[sektion] = celler;
+  }
+  return sektionsIndexCache[sektion];
+}
 function platserNaraSektion(sektion, maxMeter, lista) {
-  const celler = new Map();
-  const nyckel = (cLa, cLo) => cLa + "_" + cLo;
-  skaneledenEtapper.filter(e => e.s === sektion).forEach(e =>
-    e.l.forEach(seg => seg.forEach(p => {
-      const ny = nyckel(Math.round(p[0] * 90), Math.round(p[1] * 50));
-      if (!celler.has(ny)) celler.set(ny, []);
-      celler.get(ny).push(p);
-    })));
+  const celler = sektionsIndex(sektion);
   return lista.filter(pl => {
     const cLa = Math.round(pl.la * 90), cLo = Math.round(pl.lo * 50);
     for (let dLa = -1; dLa <= 1; dLa++) {
@@ -924,31 +964,57 @@ function platserNaraSektion(sektion, maxMeter, lista) {
   });
 }
 
-const slGrupper = {};
+// En sektions lager (linjer + vindskydd, butiker, vatten och sevärdheter
+// inom 1 km från leden) byggs först när sektionen slås på. Närmarkörerna
+// klustras i ledens färg så att platser som ligger tätt slås ihop till en
+// bubbla som expanderar vid zoom, i stället för att staplas på varandra.
+function byggSektionsLager(s) {
+  const kluster = L.markerClusterGroup({
+    maxClusterRadius: 46,
+    showCoverageOnHover: false,
+    chunkedLoading: true,
+    iconCreateFunction: c => L.divIcon({
+      html: `<div style="background:${slInfo[s].farg};color:#fff;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.3);">${c.getChildCount()}</div>`,
+      className: "", iconSize: [30, 30]
+    })
+  });
+  const markorer = [];
+  platserNaraSektion(s, 1000, osmPlatser).forEach(p => {
+    markorer.push(L.marker([p.la, p.lo], { icon: emojiIkon(p.t === "vindskydd" ? "⛺" : eldSvg, slInfo[s].farg) })
+      .bindPopup(() => osmPopup(p) + `<br><em>Nära ${slInfo[s].namn}</em>`));
+  });
+  platserNaraSektion(s, 1000, matButiker).forEach(b => {
+    const info = kedjeInfo[b.k];
+    markorer.push(L.marker([b.la, b.lo], { icon: emojiIkon("🛒", info.farg) })
+      .bindPopup(() => `<strong>🛒 ${b.n || info.namn}</strong><br>${info.namn}<br><em>Nära ${slInfo[s].namn}</em>`));
+  });
+  platserNaraSektion(s, 1000, gardsButiker).forEach(b => {
+    markorer.push(L.marker([b.la, b.lo], { icon: emojiIkon("🧺", "#5c940d") })
+      .bindPopup(() => `<strong>🧺 ${b.n || "Gårdsbutik"}</strong><br>Gårdsbutik<br><em>Nära ${slInfo[s].namn}</em>`));
+  });
+  platserNaraSektion(s, 1000, vattenPunkter).forEach(p => {
+    markorer.push(L.marker([p.la, p.lo], { icon: emojiIkon("💧", slInfo[s].farg) })
+      .bindPopup(() => `<strong>💧 ${p.n || "Dricksvatten"}</strong><br><em>Nära ${slInfo[s].namn}</em>`));
+  });
+  platserNaraSektion(s, 1000, sevardheter).forEach(p => {
+    const info = sevInfo[p.k];
+    markorer.push(L.marker([p.la, p.lo], { icon: emojiIkon(info.emoji, slInfo[s].farg) })
+      .bindPopup(() => `<strong>${info.emoji} ${p.n || info.namn}</strong><br>${info.namn}<br><em>Nära ${slInfo[s].namn}</em>`));
+  });
+  kluster.addLayers(markorer);
+  return L.layerGroup([byggSkaneleden(3, null, s), kluster]);
+}
 const slAntalVindskydd = {};
 Object.keys(slInfo).forEach(s => {
-  slGrupper[s] = byggSkaneleden(3, null, s);
-  const nara = platserNaraSektion(s, 1000, osmPlatser);
-  slAntalVindskydd[s] = nara.filter(p => p.t === "vindskydd").length;
-  nara.forEach(p => {
-    L.marker([p.la, p.lo], { icon: emojiIkon(p.t === "vindskydd" ? "⛺" : eldSvg, slInfo[s].farg) })
-      .bindPopup(osmPopup(p) + `<br><em>Nära ${slInfo[s].namn}</em>`)
-      .addTo(slGrupper[s]);
-  });
-  kopplaLager("visa-" + s.toLowerCase(), slGrupper[s], false);
+  // Antalet visas i ledkorten och behövs därför direkt — billigt tack vare
+  // det memoiserade indexet.
+  slAntalVindskydd[s] = platserNaraSektion(s, 1000, osmPlatser)
+    .filter(p => p.t === "vindskydd").length;
+  kopplaLager("visa-" + s.toLowerCase(), () => byggSektionsLager(s), false);
 });
 
 // ---------- Busshållplatser ----------
 document.getElementById("antal-bussar").textContent = bussHallplatser.length;
-const klusterBussar = L.markerClusterGroup({
-  maxClusterRadius: 60,
-  showCoverageOnHover: false,
-  disableClusteringAtZoom: 15,
-  iconCreateFunction: c => L.divIcon({
-    html: `<div style="background:#6f5aa8;color:#fff;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.3);">${c.getChildCount()}</div>`,
-    className: "", iconSize: [34, 34]
-  })
-});
 // På mobil/surfplatta öppnar länken Skånetrafiken-appen om den är installerad
 // (app.skanetrafiken.se är appens länkdomän), annars appens nedladdningssida.
 // Hållplatser med Skånetrafiken-id (g) förifylls som destination i appen —
@@ -965,107 +1031,75 @@ function bussPopup(p) {
     : `<a class="resa-knapp" href="https://www.skanetrafiken.se/sok-resa/" target="_blank" rel="noopener">Sök resa hos Skånetrafiken</a>`;
   return `<strong>🚌 ${namn}</strong><br>${resa}`;
 }
-bussHallplatser.forEach(p => {
-  klusterBussar.addLayer(
+kopplaLager("visa-bussar", () => {
+  const klusterBussar = L.markerClusterGroup({
+    maxClusterRadius: 60,
+    showCoverageOnHover: false,
+    disableClusteringAtZoom: 15,
+    chunkedLoading: true,
+    iconCreateFunction: c => L.divIcon({
+      html: `<div style="background:#6f5aa8;color:#fff;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.3);">${c.getChildCount()}</div>`,
+      className: "", iconSize: [34, 34]
+    })
+  });
+  klusterBussar.addLayers(bussHallplatser.map(p =>
     L.marker([p.la, p.lo], { icon: emojiIkon("🚌", "#6f5aa8") })
       .bindPopup(() => bussPopup(p))
-  );
-});
-kopplaLager("visa-bussar", klusterBussar, false);
+  ));
+  return klusterBussar;
+}, false);
 
 // ---------- Vattenstationer ----------
 document.getElementById("antal-vatten").textContent = vattenPunkter.length;
-const klusterVatten = L.markerClusterGroup({ maxClusterRadius: 46, showCoverageOnHover: false });
-vattenPunkter.forEach(p => {
-  klusterVatten.addLayer(
+kopplaLager("visa-vatten", () => {
+  const klusterVatten = L.markerClusterGroup({ maxClusterRadius: 46, showCoverageOnHover: false, chunkedLoading: true });
+  klusterVatten.addLayers(vattenPunkter.map(p =>
     L.marker([p.la, p.lo], { icon: emojiIkon("💧", "#1c7ed6") })
-      .bindPopup(`<strong>💧 ${p.n || "Dricksvatten"}</strong>`)
-  );
-});
-kopplaLager("visa-vatten", klusterVatten, false);
+      .bindPopup(() => `<strong>💧 ${p.n || "Dricksvatten"}</strong>`)
+  ));
+  return klusterVatten;
+}, false);
 
 // ---------- Sevärdheter ----------
-const sevInfo = {
-  utsikt: { namn: "Utsiktspunkt", emoji: "🔭", farg: "#0b7285" },
-  slott: { namn: "Slott/borg", emoji: "🏰", farg: "#9c36b5" },
-  fornminne: { namn: "Fornminne", emoji: "🗿", farg: "#795548" },
-  ovrigt: { namn: "Sevärdhet", emoji: "📸", farg: "#e64980" }
-};
 Object.keys(sevInfo).forEach(kat => {
   const info = sevInfo[kat];
   const platser = sevardheter.filter(p => p.k === kat);
   document.getElementById("antal-" + kat).textContent = platser.length;
-  const kluster = L.markerClusterGroup({ maxClusterRadius: 46, showCoverageOnHover: false });
-  platser.forEach(p => {
-    kluster.addLayer(
+  kopplaLager("visa-" + kat, () => {
+    const kluster = L.markerClusterGroup({ maxClusterRadius: 46, showCoverageOnHover: false, chunkedLoading: true });
+    kluster.addLayers(platser.map(p =>
       L.marker([p.la, p.lo], { icon: emojiIkon(info.emoji, info.farg) })
-        .bindPopup(`<strong>${info.emoji} ${p.n || info.namn}</strong>${p.n ? "<br>" + info.namn : ""}`)
-    );
-  });
-  kopplaLager("visa-" + kat, kluster, false);
+        .bindPopup(() => `<strong>${info.emoji} ${p.n || info.namn}</strong>${p.n ? "<br>" + info.namn : ""}`)
+    ));
+    return kluster;
+  }, false);
 });
 
 // ---------- Matbutiker ----------
-const kedjeInfo = {
-  ica: { namn: "ICA", farg: "#e3000b" },
-  coop: { namn: "Coop", farg: "#00a142" },
-  lidl: { namn: "Lidl", farg: "#0050aa" },
-  willys: { namn: "Willys", farg: "#1d1d1b" },
-  hemkop: { namn: "Hemköp", farg: "#e87b00" },
-  citygross: { namn: "City Gross", farg: "#003da5" },
-  ovrig: { namn: "Övrig butik", farg: "#7d7d7d" }
-};
 Object.keys(kedjeInfo).forEach(k => {
   const info = kedjeInfo[k];
   const butiker = matButiker.filter(b => b.k === k);
   document.getElementById("antal-" + k).textContent = butiker.length;
-  const kluster = L.markerClusterGroup({ maxClusterRadius: 46, showCoverageOnHover: false });
-  butiker.forEach(b => {
-    kluster.addLayer(
+  kopplaLager("visa-" + k, () => {
+    const kluster = L.markerClusterGroup({ maxClusterRadius: 46, showCoverageOnHover: false, chunkedLoading: true });
+    kluster.addLayers(butiker.map(b =>
       L.marker([b.la, b.lo], { icon: emojiIkon("🛒", info.farg) })
-        .bindPopup(`<strong>🛒 ${b.n || info.namn}</strong><br>${info.namn}`)
-    );
-  });
-  kopplaLager("visa-" + k, kluster, false);
+        .bindPopup(() => `<strong>🛒 ${b.n || info.namn}</strong><br>${info.namn}`)
+    ));
+    return kluster;
+  }, false);
 });
 
 // ---------- Gårdsbutiker ----------
 document.getElementById("antal-gardsbutik").textContent = gardsButiker.length;
-const klusterGardsbutiker = L.markerClusterGroup({ maxClusterRadius: 46, showCoverageOnHover: false });
-gardsButiker.forEach(b => {
-  klusterGardsbutiker.addLayer(
+kopplaLager("visa-gardsbutik", () => {
+  const klusterGardsbutiker = L.markerClusterGroup({ maxClusterRadius: 46, showCoverageOnHover: false, chunkedLoading: true });
+  klusterGardsbutiker.addLayers(gardsButiker.map(b =>
     L.marker([b.la, b.lo], { icon: emojiIkon("🧺", "#5c940d") })
-      .bindPopup(`<strong>🧺 ${b.n || "Gårdsbutik"}</strong><br>Gårdsbutik`)
-  );
-});
-kopplaLager("visa-gardsbutik", klusterGardsbutiker, false);
-
-// Matbutiker och vattenstationer inom 1 km från valda slingor
-// visas som en del av slingans lager
-Object.keys(slGrupper).forEach(s => {
-  platserNaraSektion(s, 1000, matButiker).forEach(b => {
-    const info = kedjeInfo[b.k];
-    L.marker([b.la, b.lo], { icon: emojiIkon("🛒", info.farg) })
-      .bindPopup(`<strong>🛒 ${b.n || info.namn}</strong><br>${info.namn}<br><em>Nära ${slInfo[s].namn}</em>`)
-      .addTo(slGrupper[s]);
-  });
-  platserNaraSektion(s, 1000, gardsButiker).forEach(b => {
-    L.marker([b.la, b.lo], { icon: emojiIkon("🧺", "#5c940d") })
-      .bindPopup(`<strong>🧺 ${b.n || "Gårdsbutik"}</strong><br>Gårdsbutik<br><em>Nära ${slInfo[s].namn}</em>`)
-      .addTo(slGrupper[s]);
-  });
-  platserNaraSektion(s, 1000, vattenPunkter).forEach(p => {
-    L.marker([p.la, p.lo], { icon: emojiIkon("💧", slInfo[s].farg) })
-      .bindPopup(`<strong>💧 ${p.n || "Dricksvatten"}</strong><br><em>Nära ${slInfo[s].namn}</em>`)
-      .addTo(slGrupper[s]);
-  });
-  platserNaraSektion(s, 1000, sevardheter).forEach(p => {
-    const info = sevInfo[p.k];
-    L.marker([p.la, p.lo], { icon: emojiIkon(info.emoji, slInfo[s].farg) })
-      .bindPopup(`<strong>${info.emoji} ${p.n || info.namn}</strong><br>${info.namn}<br><em>Nära ${slInfo[s].namn}</em>`)
-      .addTo(slGrupper[s]);
-  });
-});
+      .bindPopup(() => `<strong>🧺 ${b.n || "Gårdsbutik"}</strong><br>Gårdsbutik`)
+  ));
+  return klusterGardsbutiker;
+}, false);
 
 // Bokskogen på översiktskartan (ingår i "Utvalda vindskydd")
 L.marker([55.562, 13.213], { icon: emojiIkon("🌳", "#2d4a35") })
@@ -1150,6 +1184,7 @@ function sattAllaLager(pa) {
 document.getElementById("markera-alla").addEventListener("click", () => sattAllaLager(true));
 document.getElementById("avmarkera-alla").addEventListener("click", () => sattAllaLager(false));
 
+}); // slut på DOMContentLoaded
 </script>
 </body>
 </html>

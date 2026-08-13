@@ -1,7 +1,7 @@
 // Service worker: gör kartan användbar offline.
 // Kärnfilerna cachas vid installation. Kartrutor sparas bara när
 // kartnedladdning är påslagen i hamburgarmenyn (avstängd som standard).
-const KARN_CACHE = "vindskjul-karna-v7";
+const KARN_CACHE = "vindskjul-karna-v8";
 const TILE_CACHE = "vindskjul-tiles-v1";
 const INSTALLNINGS_CACHE = "vindskjul-installningar-v1";
 const MAX_TILES = 1500;
