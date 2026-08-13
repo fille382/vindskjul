@@ -5,6 +5,7 @@ En offline-kapabel karta (PWA) för friluftsliv i Skåne — vindskydd, grillpla
 ## Funktioner
 
 - **1 100+ vindskydd och grillplatser** i hela Skåne, plus handplockade favoriter
+- **Ledkort under kartan**: Skåneledens sju slingor som kort med längd, karaktär och antal vindskydd nära leden — klick tänder slingan och zoomar dit
 - **Skåneleden SL1–SL7** med exakt dragning, färgkodad per delled
 - **Slinglager**: välj en delled och se allt inom 1 km från leden — vindskydd, grillplatser, matbutiker, vattenstationer och sevärdheter
 - **Busshållplatser** (9 800+) för att ta sig till och från leden
