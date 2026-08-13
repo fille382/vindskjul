@@ -160,14 +160,14 @@
   .filter-knappar { display: flex; gap: 0.5rem; margin-top: 1rem; }
   .ikon-emoji { width: 1.3em; text-align: center; font-size: 1rem; }
 
-  /* ---------- Favoritkort under kartan ---------- */
-  #favorit-kort {
+  /* ---------- Ledkort under kartan ---------- */
+  #led-kort {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
     gap: 1.2rem;
     margin-top: 1.8rem;
   }
-  .favorit-kort {
+  .led-kort {
     background: #fff;
     border-radius: 14px;
     box-shadow: var(--kort-skugga);
@@ -175,7 +175,7 @@
     cursor: pointer;
     transition: transform 0.15s, box-shadow 0.15s;
   }
-  .favorit-kort:hover, .favorit-kort:focus-visible {
+  .led-kort:hover, .led-kort:focus-visible {
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(30, 51, 37, 0.12), 0 12px 32px rgba(30, 51, 37, 0.12);
   }
@@ -183,16 +183,14 @@
     display: flex; align-items: center; justify-content: space-between;
     margin-bottom: 0.55rem;
   }
-  .kort-emoji { font-size: 1.5rem; }
   .kort-typ {
     font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
     letter-spacing: 0.06em; border-radius: 999px; padding: 0.2rem 0.65rem;
+    color: #fff;
   }
-  .kort-typ.gratis { background: #e4ecdd; color: var(--skog-mork); }
-  .kort-typ.hyra { background: #dde8ef; color: #2a4d63; }
-  .favorit-kort h3 { font-size: 1.15rem; line-height: 1.25; color: var(--skog-mork); }
-  .kort-kommun { font-size: 0.82rem; color: var(--text-svag); margin-bottom: 0.45rem; }
-  .favorit-kort p { font-size: 0.88rem; line-height: 1.55; }
+  .led-kort h3 { font-size: 1.15rem; line-height: 1.25; color: var(--skog-mork); }
+  .kort-meta { font-size: 0.82rem; color: var(--text-svag); margin-bottom: 0.45rem; }
+  .led-kort p { font-size: 0.88rem; line-height: 1.55; }
   .chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.7rem; }
   .chip {
     background: var(--sand);
@@ -224,7 +222,7 @@
   body.utskriftslage footer,
   body.utskriftslage #filter-panel,
   body.utskriftslage #intro-ruta,
-  body.utskriftslage #favoriter,
+  body.utskriftslage #leder,
   body.utskriftslage .leaflet-control-zoom,
   body.utskriftslage .plats-knapp { display: none !important; }
   body.utskriftslage main { max-width: none; padding: 0; }
@@ -240,7 +238,7 @@
     -webkit-print-color-adjust: exact;
   }
   @media print {
-    header, footer, #filter-panel, #intro-ruta, #favoriter, .leaflet-control-zoom, .plats-knapp { display: none !important; }
+    header, footer, #filter-panel, #intro-ruta, #leder, .leaflet-control-zoom, .plats-knapp { display: none !important; }
     main { max-width: none; padding: 0; }
     #karta-wrap { margin: 0; page-break-inside: avoid; }
     #karta { height: 178mm; min-height: 0; border-radius: 0; box-shadow: none; }
@@ -248,7 +246,7 @@
 
   /* ---------- Mobil: ren kartvy ---------- */
   @media (max-width: 768px) {
-    header, footer, #favoriter { display: none; }
+    header, footer, #leder { display: none; }
     main { max-width: none; padding: 0; }
     #karta-wrap { margin-top: 0; }
     #karta {
@@ -459,10 +457,10 @@
     </div>
   </div>
 
-  <section id="favoriter">
-    <h2>Handplockade favoriter</h2>
-    <p class="sektion-ingress">Gratis vindskydd och unika hyddor vi gärna återvänder till. Tryck på ett kort så flyger kartan dit och berättar mer.</p>
-    <div id="favorit-kort"></div>
+  <section id="leder">
+    <h2>Skåneledens sju slingor</h2>
+    <p class="sektion-ingress">Skåneleden är uppdelad i sju slingor med var sin karaktär — från göingeskog till öppet hav. Tryck på ett kort så tänds slingan på kartan.</p>
+    <div id="led-kort"></div>
   </section>
 
 </main>
@@ -660,8 +658,7 @@ function laggTillMarkorer(lista, kantFarg, etikett) {
   const grupp = L.layerGroup();
   lista.forEach(p => {
     const ikon = p.emoji === "🔥" ? eldSvg : p.emoji;
-    // Markören sparas på platsobjektet så favoritkorten kan öppna dess popup
-    p._markor = L.marker([p.lat, p.lng], { icon: emojiIkon(ikon, kantFarg) })
+    L.marker([p.lat, p.lng], { icon: emojiIkon(ikon, kantFarg) })
       .bindPopup(rikPopup(p, etikett), { maxWidth: 290 })
       .addTo(grupp);
   });
@@ -928,9 +925,12 @@ function platserNaraSektion(sektion, maxMeter, lista) {
 }
 
 const slGrupper = {};
+const slAntalVindskydd = {};
 Object.keys(slInfo).forEach(s => {
   slGrupper[s] = byggSkaneleden(3, null, s);
-  platserNaraSektion(s, 1000, osmPlatser).forEach(p => {
+  const nara = platserNaraSektion(s, 1000, osmPlatser);
+  slAntalVindskydd[s] = nara.filter(p => p.t === "vindskydd").length;
+  nara.forEach(p => {
     L.marker([p.la, p.lo], { icon: emojiIkon(p.t === "vindskydd" ? "⛺" : eldSvg, slInfo[s].farg) })
       .bindPopup(osmPopup(p) + `<br><em>Nära ${slInfo[s].namn}</em>`)
       .addTo(slGrupper[s]);
@@ -1076,39 +1076,66 @@ L.marker([55.562, 13.213], { icon: emojiIkon("🌳", "#2d4a35") })
 document.getElementById("stat-platser").textContent = osmPlatser.length.toLocaleString("sv-SE");
 document.getElementById("stat-bussar").textContent = bussHallplatser.length.toLocaleString("sv-SE");
 
-// ---------- Favoritkort under kartan ----------
-// Ett klick på ett kort tänder lagret om det är släckt, skrollar upp till
-// kartan, flyger till platsen och öppnar dess popup.
-function visaPaKartan(p, boxId) {
-  const box = document.getElementById(boxId);
+// ---------- Ledkort under kartan ----------
+// Ett kort per slinga. Längderna är officiella cirkavärden från skaneleden.se —
+// datafilens etapplängder har blandade format och luckor. Antal vindskydd
+// inom 1 km räknas ur kartdatan ovan.
+const slKort = {
+  SL1: { km: "ca 370 km", strackning: "Sölvesborg–Ängelholm",
+         text: "Tvärs över norra Skåne från Östersjön till Kattegatt — djupa göingeskogar, mörka sjöar och långa pass av stillhet." },
+  SL2: { km: "ca 325 km", strackning: "Norr–Trelleborg",
+         text: "Genom hela Skåne från de norra skogsbygderna, via Frostavallens bokskogar och mittskånska sjöar, ner till havet vid Trelleborg." },
+  SL3: { km: "ca 160 km", strackning: "Söderåsen",
+         text: "Över de skånska åsarna — branta rasbranter, bokskogsklädda sluttningar och vida utsikter." },
+  SL4: { km: "ca 185 km", strackning: "Stenshuvud",
+         text: "Österlens hav, sandstränder, äppelodlingar och fiskelägen, med Stenshuvuds nationalpark som pärlan på snöret." },
+  SL5: { km: "ca 200 km", strackning: "Utvälinge–Malmö",
+         text: "Kustnära vandring längs Öresund med havsutsikt, fiskelägen och stadsnära natur — lätt att nå med kollektivtrafik." },
+  SL6: { km: "ca 190 km", strackning: "UNESCO-biosfärområde",
+         text: "Våtmarker, fågelrika strandängar och Helge å i Kristianstads Vattenrike." },
+  SL7: { km: "ca 65 km", strackning: "Trelleborg–Ystad",
+         text: "Sveriges sydligaste vandring — öppet hav, långa sandstränder och Smygehuk längs hela sydkusten." }
+};
+// Klick tänder slingan om den är släckt, skrollar upp och zoomar till leden.
+const ledBoundsCache = {};
+function visaLedPaKartan(s) {
+  const box = document.getElementById("visa-" + s.toLowerCase());
   if (!box.checked) {
     box.checked = true;
     box.dispatchEvent(new Event("change"));
   }
+  if (!ledBoundsCache[s]) {
+    let minLa = 90, maxLa = -90, minLo = 180, maxLo = -180;
+    skaneledenEtapper.filter(e => e.s === s).forEach(e =>
+      e.l.forEach(seg => seg.forEach(p => {
+        if (p[0] < minLa) minLa = p[0];
+        if (p[0] > maxLa) maxLa = p[0];
+        if (p[1] < minLo) minLo = p[1];
+        if (p[1] > maxLo) maxLo = p[1];
+      })));
+    ledBoundsCache[s] = [[minLa, minLo], [maxLa, maxLo]];
+  }
   document.getElementById("karta-wrap").scrollIntoView({ behavior: "smooth", block: "start" });
-  karta.flyTo([p.lat, p.lng], Math.max(karta.getZoom(), 12), { duration: 1.4 });
-  karta.once("moveend", () => p._markor.openPopup());
+  karta.flyToBounds(ledBoundsCache[s], { padding: [30, 30], duration: 1.2 });
 }
-const kortYta = document.getElementById("favorit-kort");
-[[vindskydd, "Gratis vindskydd", "gratis", "visa-utvalda"],
- [hyddor, "Hydda att hyra", "hyra", "visa-hyddor"]].forEach(([lista, etikett, typKlass, boxId]) => {
-  lista.forEach(p => {
-    const kort = document.createElement("article");
-    kort.className = "favorit-kort";
-    kort.tabIndex = 0;
-    kort.innerHTML =
-      `<div class="kort-topp"><span class="kort-emoji">${p.emoji}</span>` +
-      `<span class="kort-typ ${typKlass}">${etikett}</span></div>` +
-      `<h3>${p.namn}</h3>` +
-      `<div class="kort-kommun">${p.kommun}</div>` +
-      `<p>${p.beskrivning}</p>` +
-      `<div class="chips">${p.fakta.map(f => `<span class="chip">${f}</span>`).join("")}</div>`;
-    kort.addEventListener("click", () => visaPaKartan(p, boxId));
-    kort.addEventListener("keydown", e => {
-      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); visaPaKartan(p, boxId); }
-    });
-    kortYta.appendChild(kort);
+const kortYta = document.getElementById("led-kort");
+Object.keys(slInfo).forEach(s => {
+  const info = slInfo[s], extra = slKort[s];
+  const kort = document.createElement("article");
+  kort.className = "led-kort";
+  kort.tabIndex = 0;
+  kort.innerHTML =
+    `<div class="kort-topp"><span class="prick" style="background:${info.farg};width:15px;height:15px;"></span>` +
+    `<span class="kort-typ" style="background:${info.farg};">${s}</span></div>` +
+    `<h3>${info.namn.replace(s + " ", "")}</h3>` +
+    `<div class="kort-meta">${extra.km} · ⛺ ${slAntalVindskydd[s]} vindskydd nära leden</div>` +
+    `<p>${extra.text}</p>` +
+    `<div class="chips"><span class="chip">${extra.strackning}</span></div>`;
+  kort.addEventListener("click", () => visaLedPaKartan(s));
+  kort.addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); visaLedPaKartan(s); }
   });
+  kortYta.appendChild(kort);
 });
 
 // Markera/avmarkera alla lager
