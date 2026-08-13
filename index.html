@@ -73,10 +73,32 @@
     font-size: 1.05rem;
     color: #d9e2cf;
   }
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.6rem 2.2rem;
+    margin-top: 1.8rem;
+    font-size: 0.92rem;
+    color: #b8cdaa;
+  }
+  .hero-stats strong {
+    color: var(--sand);
+    font-weight: 600;
+  }
 
   /* ---------- Layout ---------- */
   main { max-width: 1120px; margin: 0 auto; padding: 0 1.5rem 4rem; }
   section { margin-top: 4rem; }
+  section h2 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    color: var(--skog-mork);
+  }
+  .sektion-ingress {
+    max-width: 620px;
+    margin-top: 0.4rem;
+    color: var(--text-svag);
+  }
 
   /* ---------- Karta ---------- */
   #karta-wrap { position: relative; margin-top: 2rem; }
@@ -138,6 +160,55 @@
   .filter-knappar { display: flex; gap: 0.5rem; margin-top: 1rem; }
   .ikon-emoji { width: 1.3em; text-align: center; font-size: 1rem; }
 
+  /* ---------- Favoritkort under kartan ---------- */
+  #favorit-kort {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+    gap: 1.2rem;
+    margin-top: 1.8rem;
+  }
+  .favorit-kort {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: var(--kort-skugga);
+    padding: 1.15rem 1.2rem 1.25rem;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .favorit-kort:hover, .favorit-kort:focus-visible {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(30, 51, 37, 0.12), 0 12px 32px rgba(30, 51, 37, 0.12);
+  }
+  .kort-topp {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 0.55rem;
+  }
+  .kort-emoji { font-size: 1.5rem; }
+  .kort-typ {
+    font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.06em; border-radius: 999px; padding: 0.2rem 0.65rem;
+  }
+  .kort-typ.gratis { background: #e4ecdd; color: var(--skog-mork); }
+  .kort-typ.hyra { background: #dde8ef; color: #2a4d63; }
+  .favorit-kort h3 { font-size: 1.15rem; line-height: 1.25; color: var(--skog-mork); }
+  .kort-kommun { font-size: 0.82rem; color: var(--text-svag); margin-bottom: 0.45rem; }
+  .favorit-kort p { font-size: 0.88rem; line-height: 1.55; }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.7rem; }
+  .chip {
+    background: var(--sand);
+    border: 1px solid var(--sand-mork);
+    color: var(--bark);
+    border-radius: 999px;
+    padding: 0.14rem 0.6rem;
+    font-size: 0.74rem;
+    font-weight: 500;
+  }
+
+  /* Rikare popup för utvalda vindskydd och hyddor */
+  .popup-beskrivning { margin: 0.4rem 0 0; font-size: 0.86rem; line-height: 1.5; }
+  .leaflet-popup-content .chips { margin-top: 0.5rem; }
+  .popup-lankar { margin-top: 0.55rem; }
+
   .emoji-markor {
     width: 26px; height: 26px;
     background: #fff;
@@ -153,6 +224,7 @@
   body.utskriftslage footer,
   body.utskriftslage #filter-panel,
   body.utskriftslage #intro-ruta,
+  body.utskriftslage #favoriter,
   body.utskriftslage .leaflet-control-zoom,
   body.utskriftslage .plats-knapp { display: none !important; }
   body.utskriftslage main { max-width: none; padding: 0; }
@@ -168,7 +240,7 @@
     -webkit-print-color-adjust: exact;
   }
   @media print {
-    header, footer, #filter-panel, #intro-ruta, .leaflet-control-zoom, .plats-knapp { display: none !important; }
+    header, footer, #filter-panel, #intro-ruta, #favoriter, .leaflet-control-zoom, .plats-knapp { display: none !important; }
     main { max-width: none; padding: 0; }
     #karta-wrap { margin: 0; page-break-inside: avoid; }
     #karta { height: 178mm; min-height: 0; border-radius: 0; box-shadow: none; }
@@ -176,7 +248,7 @@
 
   /* ---------- Mobil: ren kartvy ---------- */
   @media (max-width: 768px) {
-    header, footer { display: none; }
+    header, footer, #favoriter { display: none; }
     main { max-width: none; padding: 0; }
     #karta-wrap { margin-top: 0; }
     #karta {
@@ -318,6 +390,11 @@
   <div class="kicker">Friluftsliv i Skåne</div>
   <h1>Sov under bar himmel — eller i en hydda i bokskogen</h1>
   <p class="ingress">Skåne är fullt av fina vindskydd där du sover gratis längs Skåneleden, och unika hyddor du kan hyra när du vill ha lite mer komfort. Utforska kartan — tänd och släck lagren efter behov.</p>
+  <div class="hero-stats">
+    <span>⛺ <strong id="stat-platser"></strong> vindskydd &amp; grillplatser</span>
+    <span>🥾 <strong>7</strong> slingor på Skåneleden</span>
+    <span>🚌 <strong id="stat-bussar"></strong> busshållplatser</span>
+  </div>
 </header>
 
 <main>
@@ -381,6 +458,12 @@
       </div>
     </div>
   </div>
+
+  <section id="favoriter">
+    <h2>Handplockade favoriter</h2>
+    <p class="sektion-ingress">Gratis vindskydd och unika hyddor vi gärna återvänder till. Tryck på ett kort så flyger kartan dit och berättar mer.</p>
+    <div id="favorit-kort"></div>
+  </section>
 
 </main>
 
@@ -527,6 +610,7 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 18,
   attribution: '&copy; OpenStreetMap-bidragsgivare'
 }).addTo(karta);
+L.control.scale({ imperial: false }).addTo(karta);
 
 // Egen lägereldsikon (SVG) — mysigare än 🔥
 const eldSvg = '<svg viewBox="0 0 24 24" width="15" height="15" aria-label="lägereld">' +
@@ -563,12 +647,22 @@ function kopplaLager(boxId, lager, paDirekt) {
   lagerBoxar.push(box);
 }
 
+// Utvalda platser har beskrivning och fakta i datan — visa dem i popupen.
+function rikPopup(p, etikett) {
+  const ikon = p.emoji === "🔥" ? eldSvg : p.emoji;
+  const chips = p.fakta.map(f => `<span class="chip">${f}</span>`).join("");
+  return `<strong>${ikon} ${p.namn}</strong><br>${p.kommun} · ${etikett}` +
+    `<p class="popup-beskrivning">${p.beskrivning}</p>` +
+    `<div class="chips">${chips}</div>` +
+    `<div class="popup-lankar"><a href="${p.lank}" target="_blank" rel="noopener">Läs mer</a></div>`;
+}
 function laggTillMarkorer(lista, kantFarg, etikett) {
   const grupp = L.layerGroup();
   lista.forEach(p => {
     const ikon = p.emoji === "🔥" ? eldSvg : p.emoji;
-    L.marker([p.lat, p.lng], { icon: emojiIkon(ikon, kantFarg) })
-      .bindPopup(`<strong>${ikon} ${p.namn}</strong><br>${p.kommun} · ${etikett}<br><a href="${p.lank}" target="_blank" rel="noopener">Läs mer</a>`)
+    // Markören sparas på platsobjektet så favoritkorten kan öppna dess popup
+    p._markor = L.marker([p.lat, p.lng], { icon: emojiIkon(ikon, kantFarg) })
+      .bindPopup(rikPopup(p, etikett), { maxWidth: 290 })
       .addTo(grupp);
   });
   return grupp;
@@ -977,6 +1071,45 @@ Object.keys(slGrupper).forEach(s => {
 L.marker([55.562, 13.213], { icon: emojiIkon("🌳", "#2d4a35") })
   .addTo(lagerUtvalda)
   .bindPopup('<strong>🌳 Bokskogen i Torup</strong><br>Svedala · 6 vindskydd &amp; många grillplatser — zooma in för att se dem');
+
+// ---------- Statistik i heron ----------
+document.getElementById("stat-platser").textContent = osmPlatser.length.toLocaleString("sv-SE");
+document.getElementById("stat-bussar").textContent = bussHallplatser.length.toLocaleString("sv-SE");
+
+// ---------- Favoritkort under kartan ----------
+// Ett klick på ett kort tänder lagret om det är släckt, skrollar upp till
+// kartan, flyger till platsen och öppnar dess popup.
+function visaPaKartan(p, boxId) {
+  const box = document.getElementById(boxId);
+  if (!box.checked) {
+    box.checked = true;
+    box.dispatchEvent(new Event("change"));
+  }
+  document.getElementById("karta-wrap").scrollIntoView({ behavior: "smooth", block: "start" });
+  karta.flyTo([p.lat, p.lng], Math.max(karta.getZoom(), 12), { duration: 1.4 });
+  karta.once("moveend", () => p._markor.openPopup());
+}
+const kortYta = document.getElementById("favorit-kort");
+[[vindskydd, "Gratis vindskydd", "gratis", "visa-utvalda"],
+ [hyddor, "Hydda att hyra", "hyra", "visa-hyddor"]].forEach(([lista, etikett, typKlass, boxId]) => {
+  lista.forEach(p => {
+    const kort = document.createElement("article");
+    kort.className = "favorit-kort";
+    kort.tabIndex = 0;
+    kort.innerHTML =
+      `<div class="kort-topp"><span class="kort-emoji">${p.emoji}</span>` +
+      `<span class="kort-typ ${typKlass}">${etikett}</span></div>` +
+      `<h3>${p.namn}</h3>` +
+      `<div class="kort-kommun">${p.kommun}</div>` +
+      `<p>${p.beskrivning}</p>` +
+      `<div class="chips">${p.fakta.map(f => `<span class="chip">${f}</span>`).join("")}</div>`;
+    kort.addEventListener("click", () => visaPaKartan(p, boxId));
+    kort.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); visaPaKartan(p, boxId); }
+    });
+    kortYta.appendChild(kort);
+  });
+});
 
 // Markera/avmarkera alla lager
 function sattAllaLager(pa) {
