@@ -631,6 +631,16 @@ function emojiIkon(emoji, kantFarg) {
     iconAnchor: [13, 13]
   });
 }
+// Genomskinlig variant för platser längs slingorna: bara kontur och symbol,
+// så att leden och kartan syns igenom. Samma stil som slingklustrens nålar.
+function konturIkon(emoji, kantFarg) {
+  return L.divIcon({
+    className: "",
+    html: `<div style="box-sizing:border-box;width:26px;height:26px;border:2.5px solid ${kantFarg};border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;line-height:1;box-shadow:0 0 0 1.5px rgba(255,255,255,0.85), inset 0 0 0 1.5px rgba(255,255,255,0.85);">${emoji}</div>`,
+    iconSize: [26, 26],
+    iconAnchor: [13, 13]
+  });
+}
 
 // Central lagerhantering: varje kryssruta styr ett lager, och
 // "Markera/Avmarkera alla" går igenom hela registret.
@@ -995,25 +1005,25 @@ function byggSektionsLager(s) {
   const markorer = { vindskydd: [], grill: [], vatten: [], butik: [], gardsbutik: [], sevardhet: [] };
   platserNaraSektion(s, 1000, osmPlatser).forEach(p => {
     markorer[p.t === "vindskydd" ? "vindskydd" : "grill"].push(
-      L.marker([p.la, p.lo], { icon: emojiIkon(p.t === "vindskydd" ? "⛺" : eldSvg, slInfo[s].farg) })
+      L.marker([p.la, p.lo], { icon: konturIkon(p.t === "vindskydd" ? "⛺" : eldSvg, slInfo[s].farg) })
         .bindPopup(() => osmPopup(p) + `<br><em>Nära ${slInfo[s].namn}</em>`));
   });
   platserNaraSektion(s, 1000, matButiker).forEach(b => {
     const info = kedjeInfo[b.k];
-    markorer.butik.push(L.marker([b.la, b.lo], { icon: emojiIkon("🛒", info.farg) })
+    markorer.butik.push(L.marker([b.la, b.lo], { icon: konturIkon("🛒", info.farg) })
       .bindPopup(() => `<strong>🛒 ${b.n || info.namn}</strong><br>${info.namn}<br><em>Nära ${slInfo[s].namn}</em>`));
   });
   platserNaraSektion(s, 1000, gardsButiker).forEach(b => {
-    markorer.gardsbutik.push(L.marker([b.la, b.lo], { icon: emojiIkon("🧺", "#5c940d") })
+    markorer.gardsbutik.push(L.marker([b.la, b.lo], { icon: konturIkon("🧺", "#5c940d") })
       .bindPopup(() => `<strong>🧺 ${b.n || "Gårdsbutik"}</strong><br>Gårdsbutik<br><em>Nära ${slInfo[s].namn}</em>`));
   });
   platserNaraSektion(s, 1000, vattenPunkter).forEach(p => {
-    markorer.vatten.push(L.marker([p.la, p.lo], { icon: emojiIkon("💧", slInfo[s].farg) })
+    markorer.vatten.push(L.marker([p.la, p.lo], { icon: konturIkon("💧", slInfo[s].farg) })
       .bindPopup(() => `<strong>💧 ${p.n || "Dricksvatten"}</strong><br><em>Nära ${slInfo[s].namn}</em>`));
   });
   platserNaraSektion(s, 1000, sevardheter).forEach(p => {
     const info = sevInfo[p.k];
-    markorer.sevardhet.push(L.marker([p.la, p.lo], { icon: emojiIkon(info.emoji, slInfo[s].farg) })
+    markorer.sevardhet.push(L.marker([p.la, p.lo], { icon: konturIkon(info.emoji, slInfo[s].farg) })
       .bindPopup(() => `<strong>${info.emoji} ${p.n || info.namn}</strong><br>${info.namn}<br><em>Nära ${slInfo[s].namn}</em>`));
   });
   const delar = [byggSkaneleden(3, null, s)];
