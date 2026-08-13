@@ -969,13 +969,19 @@ function platserNaraSektion(sektion, maxMeter, lista) {
 // klustras per kategori i ledens färg — platser som ligger tätt slås ihop
 // till en bubbla med kategorins symbol och antal, som expanderar vid zoom.
 function byggSektionsLager(s) {
+  // Klusterikonen är en droppformad kartnål med spetsen på platsen:
+  // bara kontur i ledens färg, genomskinlig inuti så leden syns igenom,
+  // och kategorins symbol i mitten.
   const kategoriKluster = symbol => L.markerClusterGroup({
     maxClusterRadius: 46,
     showCoverageOnHover: false,
     chunkedLoading: true,
-    iconCreateFunction: c => L.divIcon({
-      html: `<div style="background:${slInfo[s].farg};color:#fff;border-radius:14px;height:28px;padding:0 9px;display:inline-flex;align-items:center;justify-content:center;gap:3px;font-size:12px;font-weight:600;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.3);white-space:nowrap;">${symbol} ${c.getChildCount()}</div>`,
-      className: "", iconSize: null, iconAnchor: [24, 14]
+    iconCreateFunction: () => L.divIcon({
+      html: `<div style="width:40px;height:44px;position:relative;">` +
+        `<div style="position:absolute;left:6px;top:8px;box-sizing:border-box;width:28px;height:28px;border:2.5px solid ${slInfo[s].farg};border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 1.5px rgba(255,255,255,0.85), inset 0 0 0 1.5px rgba(255,255,255,0.85);">` +
+        `<div style="transform:rotate(45deg);font-size:13px;line-height:1;">${symbol}</div>` +
+        `</div></div>`,
+      className: "", iconSize: [40, 44], iconAnchor: [20, 42]
     })
   });
   const kluster = {
