@@ -1,7 +1,7 @@
 {
-  "name": "Vindskydd & Hyddor i Skåne",
-  "short_name": "Vindskydd",
-  "description": "Karta över vindskydd, grillplatser, Skåneleden, bussar och matbutiker i Skåne — funkar offline.",
+  "name": "Skåneleden-kartan",
+  "short_name": "Skåneleden",
+  "description": "Karta för att planera vandring på Skåneleden — alla sju slingor med vindskydd, grillplatser, bussar, vatten och matbutiker nära leden. Funkar offline.",
   "lang": "sv",
   "start_url": "./index.html",
   "scope": "./",

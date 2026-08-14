@@ -125,6 +125,32 @@
     color: var(--text-svag);
   }
 
+  /* ---------- Slingguide & FAQ ---------- */
+  #guide-lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.6rem 2rem;
+    margin-top: 2rem;
+  }
+  .guide-item {
+    border-left: 4px solid var(--mossa);
+    padding-left: 1rem;
+  }
+  .guide-item h3 { font-size: 1.15rem; color: var(--skog-mork); }
+  .guide-item p { font-size: 0.92rem; margin-top: 0.4rem; color: var(--text); }
+  .guide-visa {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--hav);
+    text-decoration: none;
+  }
+  .guide-visa:hover { text-decoration: underline; }
+  #faq .faq-item { max-width: 720px; margin-top: 1.6rem; }
+  #faq .faq-item h3 { font-size: 1.05rem; color: var(--skog-mork); }
+  #faq .faq-item p { font-size: 0.92rem; margin-top: 0.35rem; }
+
   /* ---------- Karta ---------- */
   #karta-wrap { position: relative; margin-top: 2rem; }
   #karta {
@@ -521,6 +547,68 @@
     <div id="led-kort"></div>
   </section>
 
+  <section id="guide">
+    <h2 data-i18n="guideRubrik">Guide: så väljer du slinga på Skåneleden</h2>
+    <p class="sektion-ingress" data-i18n="guideIngress">Skåneleden är över 1 400 km uppdelade på sju slingor — här är vad som väntar på var och en, så att du kan välja rätt för din vandring.</p>
+    <div id="guide-lista">
+      <article class="guide-item" style="border-color:#c0392b;">
+        <h3 data-i18n="gnSL1">SL1 Kust till kustleden · ca 370 km</h3>
+        <p data-i18n="gtSL1">Tvärs över norra Skåne från Sölvesborg vid Östersjön till Ängelholm vid Kattegatt — djupa göingeskogar, mörka sjöar och långa pass av stillhet. Här är det glest mellan människorna och tätt mellan vindskydden, perfekt för flerdagarsvandring med gratis övernattning utomhus.</p>
+        <a href="#karta-wrap" class="guide-visa" data-slinga="SL1" data-i18n="guideVisa">Visa slingan på kartan →</a>
+      </article>
+      <article class="guide-item" style="border-color:#2166ac;">
+        <h3 data-i18n="gnSL2">SL2 Nord till sydleden · ca 325 km</h3>
+        <p data-i18n="gtSL2">Korsar hela Skåne från de norra skogsbygderna via Frostavallens bokskogar och de mittskånska sjöarna ner till havet i Trelleborg. Slingan för den som vill se landskapet skifta från skog till slätt, med gott om vindskydd och busshållplatser längs vägen.</p>
+        <a href="#karta-wrap" class="guide-visa" data-slinga="SL2" data-i18n="guideVisa">Visa slingan på kartan →</a>
+      </article>
+      <article class="guide-item" style="border-color:#35978f;">
+        <h3 data-i18n="gnSL3">SL3 Ås till åsleden · ca 160 km</h3>
+        <p data-i18n="gtSL3">Slingan för höjdmeter: över de skånska åsarna med Söderåsens nationalpark som höjdpunkt — raviner, rasbranter, bokskog och vida utsikter från Kopparhatten. Många etapper passar som dagsturer med buss till och från.</p>
+        <a href="#karta-wrap" class="guide-visa" data-slinga="SL3" data-i18n="guideVisa">Visa slingan på kartan →</a>
+      </article>
+      <article class="guide-item" style="border-color:#e08214;">
+        <h3 data-i18n="gnSL4">SL4 Österlenleden · ca 185 km</h3>
+        <p data-i18n="gtSL4">Österlens hav, sandstränder, äppelodlingar och fiskelägen, med Stenshuvuds nationalpark som pärlan på snöret. Kombinera gärna vandring med bad — flera vindskydd ligger nära kusten.</p>
+        <a href="#karta-wrap" class="guide-visa" data-slinga="SL4" data-i18n="guideVisa">Visa slingan på kartan →</a>
+      </article>
+      <article class="guide-item" style="border-color:#762a83;">
+        <h3 data-i18n="gnSL5">SL5 Öresundsleden · ca 200 km</h3>
+        <p data-i18n="gtSL5">Följer kusten mellan Utvälinge och Malmö med havsutsikt, fiskelägen och stadsnära natur. Tack vare tät kollektivtrafik är detta den enklaste slingan att dagsvandra — kliv av bussen, gå en etapp och ta nästa buss hem.</p>
+        <a href="#karta-wrap" class="guide-visa" data-slinga="SL5" data-i18n="guideVisa">Visa slingan på kartan →</a>
+      </article>
+      <article class="guide-item" style="border-color:#8c510a;">
+        <h3 data-i18n="gnSL6">SL6 Vattenriket · ca 190 km</h3>
+        <p data-i18n="gtSL6">Genom Kristianstads UNESCO-biosfärområde: våtmarker, fågelrika strandängar och Helge å. En lugn slinga för den som hellre räknar fåglar än höjdmeter.</p>
+        <a href="#karta-wrap" class="guide-visa" data-slinga="SL6" data-i18n="guideVisa">Visa slingan på kartan →</a>
+      </article>
+      <article class="guide-item" style="border-color:#c2185b;">
+        <h3 data-i18n="gnSL7">SL7 Sydkustleden · ca 65 km</h3>
+        <p data-i18n="gtSL7">Sveriges sydligaste vandring, mellan Trelleborg och Ystad — öppet hav, långa sandstränder och Smygehuk, landets sydligaste punkt. Kort nog för en helg, med bra bussförbindelser i båda ändar.</p>
+        <a href="#karta-wrap" class="guide-visa" data-slinga="SL7" data-i18n="guideVisa">Visa slingan på kartan →</a>
+      </article>
+    </div>
+  </section>
+
+  <section id="faq">
+    <h2 data-i18n="faqRubrik">Vanliga frågor om att vandra Skåneleden</h2>
+    <div class="faq-item">
+      <h3 data-i18n="faqF1">Får man sova gratis i vindskydden längs Skåneleden?</h3>
+      <p data-i18n="faqS1">Ja — de allra flesta vindskydd är gratis och kan inte bokas, utan först till kvarn gäller. Ta med liggunderlag och sovsäck, lämna platsen som du fann den, och ha en reservplan om skyddet är upptaget: kartan visar ofta fler vindskydd inom några kilometer.</p>
+    </div>
+    <div class="faq-item">
+      <h3 data-i18n="faqF2">Hur tar jag mig till och från leden utan bil?</h3>
+      <p data-i18n="faqS2">Skånetrafikens bussar når stora delar av Skåneleden. Tänd lagret med busshållplatser i kartans meny så ser du var du kan kliva av och på — särskilt Öresundsleden SL5 är lätt att dagsvandra kollektivt.</p>
+    </div>
+    <div class="faq-item">
+      <h3 data-i18n="faqF3">Finns det dricksvatten längs leden?</h3>
+      <p data-i18n="faqS3">Vid flera rastplatser finns vattenstationer — tänd vattenlagret i kartan så ser du dem. Räkna ändå med att bära vatten mellan påfyllningarna, särskilt sommartid.</p>
+    </div>
+    <div class="faq-item">
+      <h3 data-i18n="faqF4">Fungerar kartan utan mobiltäckning?</h3>
+      <p data-i18n="faqS4">Ja. Sidan är en app (PWA) som kan installeras på hemskärmen och fungerar offline — platser och leder finns sparade i telefonen. Kartrutor kan också sparas: slå på kartnedladdning i menyn innan du ger dig ut.</p>
+    </div>
+  </section>
+
 </main>
 
 <footer data-i18n="footer">
@@ -588,6 +676,32 @@ const TEXTER = {
     avmarkeraAlla: "Avmarkera alla",
     lederRubrik: "Skåneledens sju slingor",
     lederIngress: "Skåneleden är uppdelad i sju slingor med var sin karaktär — från göingeskog till öppet hav. Tryck på ett kort så tänds slingan på kartan.",
+    guideRubrik: "Guide: så väljer du slinga på Skåneleden",
+    guideIngress: "Skåneleden är över 1 400 km uppdelade på sju slingor — här är vad som väntar på var och en, så att du kan välja rätt för din vandring.",
+    gnSL1: "SL1 Kust till kustleden · ca 370 km",
+    gtSL1: "Tvärs över norra Skåne från Sölvesborg vid Östersjön till Ängelholm vid Kattegatt — djupa göingeskogar, mörka sjöar och långa pass av stillhet. Här är det glest mellan människorna och tätt mellan vindskydden, perfekt för flerdagarsvandring med gratis övernattning utomhus.",
+    gnSL2: "SL2 Nord till sydleden · ca 325 km",
+    gtSL2: "Korsar hela Skåne från de norra skogsbygderna via Frostavallens bokskogar och de mittskånska sjöarna ner till havet i Trelleborg. Slingan för den som vill se landskapet skifta från skog till slätt, med gott om vindskydd och busshållplatser längs vägen.",
+    gnSL3: "SL3 Ås till åsleden · ca 160 km",
+    gtSL3: "Slingan för höjdmeter: över de skånska åsarna med Söderåsens nationalpark som höjdpunkt — raviner, rasbranter, bokskog och vida utsikter från Kopparhatten. Många etapper passar som dagsturer med buss till och från.",
+    gnSL4: "SL4 Österlenleden · ca 185 km",
+    gtSL4: "Österlens hav, sandstränder, äppelodlingar och fiskelägen, med Stenshuvuds nationalpark som pärlan på snöret. Kombinera gärna vandring med bad — flera vindskydd ligger nära kusten.",
+    gnSL5: "SL5 Öresundsleden · ca 200 km",
+    gtSL5: "Följer kusten mellan Utvälinge och Malmö med havsutsikt, fiskelägen och stadsnära natur. Tack vare tät kollektivtrafik är detta den enklaste slingan att dagsvandra — kliv av bussen, gå en etapp och ta nästa buss hem.",
+    gnSL6: "SL6 Vattenriket · ca 190 km",
+    gtSL6: "Genom Kristianstads UNESCO-biosfärområde: våtmarker, fågelrika strandängar och Helge å. En lugn slinga för den som hellre räknar fåglar än höjdmeter.",
+    gnSL7: "SL7 Sydkustleden · ca 65 km",
+    gtSL7: "Sveriges sydligaste vandring, mellan Trelleborg och Ystad — öppet hav, långa sandstränder och Smygehuk, landets sydligaste punkt. Kort nog för en helg, med bra bussförbindelser i båda ändar.",
+    guideVisa: "Visa slingan på kartan →",
+    faqRubrik: "Vanliga frågor om att vandra Skåneleden",
+    faqF1: "Får man sova gratis i vindskydden längs Skåneleden?",
+    faqS1: "Ja — de allra flesta vindskydd är gratis och kan inte bokas, utan först till kvarn gäller. Ta med liggunderlag och sovsäck, lämna platsen som du fann den, och ha en reservplan om skyddet är upptaget: kartan visar ofta fler vindskydd inom några kilometer.",
+    faqF2: "Hur tar jag mig till och från leden utan bil?",
+    faqS2: "Skånetrafikens bussar når stora delar av Skåneleden. Tänd lagret med busshållplatser i kartans meny så ser du var du kan kliva av och på — särskilt Öresundsleden SL5 är lätt att dagsvandra kollektivt.",
+    faqF3: "Finns det dricksvatten längs leden?",
+    faqS3: "Vid flera rastplatser finns vattenstationer — tänd vattenlagret i kartan så ser du dem. Räkna ändå med att bära vatten mellan påfyllningarna, särskilt sommartid.",
+    faqF4: "Fungerar kartan utan mobiltäckning?",
+    faqS4: "Ja. Sidan är en app (PWA) som kan installeras på hemskärmen och fungerar offline — platser och leder finns sparade i telefonen. Kartrutor kan också sparas: slå på kartnedladdning i menyn innan du ger dig ut.",
     footer: 'Byggd med kärlek till skånsk natur · Källor: <a href="https://skanskalandskap.se/">Stiftelsen Skånska Landskap</a>, <a href="https://www.skaneleden.se/">Skåneleden</a>, <a href="https://vindskyddskartan.se/">Vindskyddskartan</a> · Kartdata © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     platsFolj: "Följ min plats",
     platsSluta: "Sluta följa min plats",
@@ -656,6 +770,32 @@ const TEXTER = {
     avmarkeraAlla: "Deselect all",
     lederRubrik: "The seven loops of Skåneleden",
     lederIngress: "Skåneleden is divided into seven loop trails, each with its own character — from Göinge forest to open sea. Tap a card to light up the loop on the map.",
+    guideRubrik: "Guide: choosing your loop on the Skåneleden",
+    guideIngress: "The Skåneleden trail is over 1,400 km divided into seven loops — here is what awaits on each one, so you can pick the right one for your hike.",
+    gnSL1: "SL1 Coast to Coast Trail · approx. 370 km",
+    gtSL1: "Straight across northern Skåne from Sölvesborg on the Baltic to Ängelholm on the Kattegat — deep Göinge forests, dark lakes and long stretches of stillness. People are few and wind shelters are plenty, perfect for multi-day hikes with free nights outdoors.",
+    gnSL2: "SL2 North to South Trail · approx. 325 km",
+    gtSL2: "Crosses all of Skåne from the northern forests via the beech woods of Frostavallen and the lakes of central Skåne down to the sea at Trelleborg. The loop for watching the landscape shift from forest to plain, with plenty of shelters and bus stops along the way.",
+    gnSL3: "SL3 Ridge to Ridge Trail · approx. 160 km",
+    gtSL3: "The loop for climbing: across the ridges of Skåne with Söderåsen National Park as the highlight — ravines, scree slopes, beech forest and wide views from Kopparhatten. Many stages work as day hikes with a bus there and back.",
+    gnSL4: "SL4 Österlen Trail · approx. 185 km",
+    gtSL4: "Österlen's sea, sandy beaches, apple orchards and fishing villages, with Stenshuvud National Park as the pearl on the string. Combine hiking with a swim — several shelters sit close to the coast.",
+    gnSL5: "SL5 Öresund Trail · approx. 200 km",
+    gtSL5: "Follows the coast between Utvälinge and Malmö with sea views, fishing villages and nature close to town. Thanks to frequent public transport this is the easiest loop for day hikes — hop off the bus, walk a stage and catch the next bus home.",
+    gnSL6: "SL6 Vattenriket · approx. 190 km",
+    gtSL6: "Through Kristianstad's UNESCO biosphere reserve: wetlands, bird-rich coastal meadows and the river Helge å. A calm loop for those who would rather count birds than metres of elevation.",
+    gnSL7: "SL7 South Coast Trail · approx. 65 km",
+    gtSL7: "Sweden's southernmost hike, between Trelleborg and Ystad — open sea, long sandy beaches and Smygehuk, the country's southernmost point. Short enough for a weekend, with good bus connections at both ends.",
+    guideVisa: "Show the loop on the map →",
+    faqRubrik: "Common questions about hiking the Skåneleden",
+    faqF1: "Can you sleep for free in the shelters along the Skåneleden?",
+    faqS1: "Yes — the vast majority of wind shelters are free and cannot be booked; first come, first served. Bring a sleeping mat and sleeping bag, leave the site as you found it, and have a backup plan if the shelter is taken: the map often shows more shelters within a few kilometres.",
+    faqF2: "How do I reach the trail without a car?",
+    faqS2: "Skånetrafiken's buses reach large parts of the Skåneleden. Switch on the bus stop layer in the map menu to see where you can get on and off — the Öresund Trail SL5 in particular is easy to day-hike by public transport.",
+    faqF3: "Is there drinking water along the trail?",
+    faqS3: "Several rest areas have water stations — switch on the water layer in the map to see them. Still plan to carry water between refills, especially in summer.",
+    faqF4: "Does the map work without mobile coverage?",
+    faqS4: "Yes. The site is an app (PWA) that can be installed on your home screen and works offline — places and trails are stored on your phone. Map tiles can be saved too: enable map download in the menu before you head out.",
     footer: 'Built with love for the nature of Skåne · Sources: <a href="https://skanskalandskap.se/">Stiftelsen Skånska Landskap</a>, <a href="https://www.skaneleden.se/">Skåneleden</a>, <a href="https://vindskyddskartan.se/">Vindskyddskartan</a> · Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     platsFolj: "Follow my location",
     platsSluta: "Stop following my location",
@@ -724,6 +864,32 @@ const TEXTER = {
     avmarkeraAlla: "Alle abwählen",
     lederRubrik: "Die sieben Rundwege des Skåneleden",
     lederIngress: "Der Skåneleden ist in sieben Rundwege mit jeweils eigenem Charakter unterteilt — vom Göinge-Wald bis zum offenen Meer. Tippe auf eine Karte, um den Weg auf der Karte hervorzuheben.",
+    guideRubrik: "Guide: Welche Schleife des Skåneleden passt zu dir?",
+    guideIngress: "Der Skåneleden umfasst über 1 400 km, aufgeteilt auf sieben Schleifen — hier erfährst du, was dich auf jeder erwartet, damit du die richtige für deine Wanderung wählst.",
+    gnSL1: "SL1 Küste-zu-Küste-Weg · ca. 370 km",
+    gtSL1: "Quer durch Nordschonen von Sölvesborg an der Ostsee bis Ängelholm am Kattegat — tiefe Göinge-Wälder, dunkle Seen und lange Abschnitte voller Stille. Wenige Menschen, viele Schutzhütten: perfekt für Mehrtagestouren mit kostenloser Übernachtung im Freien.",
+    gnSL2: "SL2 Nord-Süd-Weg · ca. 325 km",
+    gtSL2: "Durchquert ganz Skåne von den nördlichen Waldgebieten über die Buchenwälder von Frostavallen und die Seen Mittelschonens hinunter ans Meer bei Trelleborg. Die Schleife für alle, die den Wandel der Landschaft von Wald zu Ebene erleben wollen — mit vielen Schutzhütten und Bushaltestellen am Weg.",
+    gnSL3: "SL3 Grat-zu-Grat-Weg · ca. 160 km",
+    gtSL3: "Die Schleife für Höhenmeter: über die schonischen Höhenrücken mit dem Nationalpark Söderåsen als Höhepunkt — Schluchten, Geröllhänge, Buchenwald und weite Ausblicke vom Kopparhatten. Viele Etappen eignen sich als Tagestouren mit Bus hin und zurück.",
+    gnSL4: "SL4 Österlen-Weg · ca. 185 km",
+    gtSL4: "Österlens Meer, Sandstrände, Apfelplantagen und Fischerdörfer, mit dem Nationalpark Stenshuvud als Perle an der Schnur. Wandern lässt sich hier gut mit Baden verbinden — mehrere Schutzhütten liegen nah an der Küste.",
+    gnSL5: "SL5 Öresund-Weg · ca. 200 km",
+    gtSL5: "Folgt der Küste zwischen Utvälinge und Malmö mit Meerblick, Fischerdörfern und stadtnaher Natur. Dank dichtem Nahverkehr ist dies die einfachste Schleife für Tagestouren — aus dem Bus steigen, eine Etappe wandern und mit dem nächsten Bus zurück.",
+    gnSL6: "SL6 Vattenriket · ca. 190 km",
+    gtSL6: "Durch das UNESCO-Biosphärenreservat von Kristianstad: Feuchtgebiete, vogelreiche Strandwiesen und der Fluss Helge å. Eine ruhige Schleife für alle, die lieber Vögel zählen als Höhenmeter.",
+    gnSL7: "SL7 Südküsten-Weg · ca. 65 km",
+    gtSL7: "Schwedens südlichste Wanderung, zwischen Trelleborg und Ystad — offenes Meer, lange Sandstrände und Smygehuk, der südlichste Punkt des Landes. Kurz genug für ein Wochenende, mit guten Busverbindungen an beiden Enden.",
+    guideVisa: "Schleife auf der Karte zeigen →",
+    faqRubrik: "Häufige Fragen zum Wandern auf dem Skåneleden",
+    faqF1: "Kann man in den Schutzhütten am Skåneleden kostenlos übernachten?",
+    faqS1: "Ja — die allermeisten Schutzhütten sind kostenlos und nicht reservierbar; es gilt: Wer zuerst kommt, schläft zuerst. Nimm Isomatte und Schlafsack mit, hinterlasse den Platz, wie du ihn vorgefunden hast, und habe einen Plan B, falls die Hütte belegt ist — die Karte zeigt oft weitere Schutzhütten im Umkreis weniger Kilometer.",
+    faqF2: "Wie erreiche ich den Weg ohne Auto?",
+    faqS2: "Die Busse von Skånetrafiken erreichen große Teile des Skåneleden. Schalte die Ebene mit Bushaltestellen im Kartenmenü ein, um Ein- und Ausstiege zu sehen — besonders der Öresund-Weg SL5 lässt sich gut mit öffentlichen Verkehrsmitteln als Tagestour wandern.",
+    faqF3: "Gibt es Trinkwasser entlang des Weges?",
+    faqS3: "An mehreren Rastplätzen gibt es Wasserstellen — schalte die Wasser-Ebene in der Karte ein, um sie zu sehen. Plane trotzdem ein, Wasser zwischen den Auffüllstationen zu tragen, besonders im Sommer.",
+    faqF4: "Funktioniert die Karte ohne Mobilfunkempfang?",
+    faqS4: "Ja. Die Seite ist eine App (PWA), die sich auf dem Startbildschirm installieren lässt und offline funktioniert — Orte und Wege sind auf dem Handy gespeichert. Auch Kartenkacheln lassen sich speichern: Aktiviere den Karten-Download im Menü, bevor du losziehst.",
     footer: 'Gebaut mit Liebe zur schonischen Natur · Quellen: <a href="https://skanskalandskap.se/">Stiftelsen Skånska Landskap</a>, <a href="https://www.skaneleden.se/">Skåneleden</a>, <a href="https://vindskyddskartan.se/">Vindskyddskartan</a> · Kartendaten © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     platsFolj: "Meinen Standort verfolgen",
     platsSluta: "Standortverfolgung beenden",
@@ -1651,6 +1817,13 @@ function byggLedKort() {
     kortYta.appendChild(kort);
   });
 }
+// Guidesektionens länkar tänder också slingan och zoomar dit.
+document.querySelectorAll(".guide-visa").forEach(lank => {
+  lank.addEventListener("click", e => {
+    e.preventDefault();
+    visaLedPaKartan(lank.dataset.slinga);
+  });
+});
 
 // Markera/avmarkera alla lager
 function sattAllaLager(pa) {
