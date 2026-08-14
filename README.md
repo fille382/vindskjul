@@ -1,6 +1,8 @@
-# Vindskydd & Hyddor i Skåne 🏕️
+# Skåneleden-kartan 🥾
 
-En offline-kapabel karta (PWA) för friluftsliv i Skåne — vindskydd, grillplatser, Skåneleden, busshållplatser, matbutiker, vattenstationer och sevärdheter.
+En offline-kapabel karta (PWA) för att planera vandring på Skåneleden — alla sju slingor SL1–SL7 med vindskydd, grillplatser, busshållplatser, matbutiker, vattenstationer och sevärdheter nära leden.
+
+Live: https://fille382.github.io/vindskjul/
 
 ## Funktioner
 
