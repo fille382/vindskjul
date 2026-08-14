@@ -3,26 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vindskydd &amp; Hyddor i Skåne — karta över 1 100+ vindskydd och grillplatser</title>
-<meta name="description" content="Gratis karta över 1 100+ vindskydd, hyddor och grillplatser i Skåne. Skåneleden SL1–SL7, busshållplatser, matbutiker, vattenstationer och sevärdheter. Fungerar offline i mobilen.">
+<title>Skåneleden-karta: vindskydd, vatten &amp; bussar längs SL1–SL7</title>
+<meta name="description" content="Planera din vandring på Skåneleden. Gratis karta över alla sju slingor SL1–SL7 med vindskydd, grillplatser, vattenstationer, matbutiker och busshållplatser nära leden. Fungerar offline i mobilen.">
 <link rel="canonical" href="https://fille382.github.io/vindskjul/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Vindskydd &amp; Hyddor i Skåne">
-<meta property="og:description" content="Gratis karta över 1 100+ vindskydd, hyddor och grillplatser i Skåne. Skåneleden SL1–SL7, kollektivtrafik, matbutiker och vattenstationer — fungerar offline.">
+<meta property="og:title" content="Skåneleden-karta — vindskydd, vatten &amp; bussar längs leden">
+<meta property="og:description" content="Planera din vandring på Skåneleden: alla sju slingor SL1–SL7 med vindskydd, grillplatser, vattenstationer och busshållplatser nära leden — fungerar offline.">
 <meta property="og:url" content="https://fille382.github.io/vindskjul/">
 <meta property="og:image" content="https://fille382.github.io/vindskjul/ikon-512.png">
 <meta property="og:locale" content="sv_SE">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Vindskydd &amp; Hyddor i Skåne">
-<meta name="twitter:description" content="Gratis karta över 1 100+ vindskydd, hyddor och grillplatser i Skåne — fungerar offline i mobilen.">
+<meta name="twitter:title" content="Skåneleden-karta — vindskydd, vatten &amp; bussar längs leden">
+<meta name="twitter:description" content="Planera din vandring på Skåneleden: SL1–SL7 med vindskydd, vatten och bussar nära leden — fungerar offline i mobilen.">
 <meta name="twitter:image" content="https://fille382.github.io/vindskjul/ikon-512.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Vindskydd & Hyddor i Skåne",
+  "name": "Skåneleden-kartan",
   "url": "https://fille382.github.io/vindskjul/",
-  "description": "Offline-kapabel karta över vindskydd, hyddor, grillplatser och Skåneleden i Skåne.",
+  "description": "Offline-kapabel karta för att planera vandring på Skåneleden: alla sju slingor SL1–SL7 med vindskydd, grillplatser, vattenstationer, matbutiker och busshållplatser nära leden.",
   "applicationCategory": "TravelApplication",
   "operatingSystem": "Any",
   "inLanguage": ["sv", "en", "de"],
@@ -441,9 +441,9 @@
 
 <header>
   <div class="sprak-valjare" aria-label="Språk / Language / Sprache"></div>
-  <div class="kicker" data-i18n="kicker">Friluftsliv i Skåne</div>
-  <h1 data-i18n="rubrik">Sov under bar himmel — eller i en hydda i bokskogen</h1>
-  <p class="ingress" data-i18n="ingress">Skåne är fullt av fina vindskydd där du sover gratis längs Skåneleden, och unika hyddor du kan hyra när du vill ha lite mer komfort. Utforska kartan — tänd och släck lagren efter behov.</p>
+  <div class="kicker" data-i18n="kicker">Vandra Skåneleden</div>
+  <h1 data-i18n="rubrik">Planera din vandring på Skåneleden — och sov gratis längs vägen</h1>
+  <p class="ingress" data-i18n="ingress">Alla sju slingor SL1–SL7 på en karta, med vindskydd där du sover gratis, vattenstationer, matbutiker och busshållplatser nära leden. Välj en slinga och se allt inom en kilometer — eller hyr en hydda när du vill ha mer komfort.</p>
   <div class="hero-stats">
     <span>⛺ <strong id="stat-platser"></strong> <span data-i18n="statPlatser">vindskydd &amp; grillplatser</span></span>
     <span>🥾 <strong>7</strong> <span data-i18n="statSlingor">slingor på Skåneleden</span></span>
@@ -548,9 +548,9 @@ document.addEventListener("DOMContentLoaded", () => {
 const TEXTER = {
   sv: {
     titel: "Vindskydd & Hyddor i Skåne",
-    kicker: "Friluftsliv i Skåne",
-    rubrik: "Sov under bar himmel — eller i en hydda i bokskogen",
-    ingress: "Skåne är fullt av fina vindskydd där du sover gratis längs Skåneleden, och unika hyddor du kan hyra när du vill ha lite mer komfort. Utforska kartan — tänd och släck lagren efter behov.",
+    kicker: "Vandra Skåneleden",
+    rubrik: "Planera din vandring på Skåneleden — och sov gratis längs vägen",
+    ingress: "Alla sju slingor SL1–SL7 på en karta, med vindskydd där du sover gratis, vattenstationer, matbutiker och busshållplatser nära leden. Välj en slinga och se allt inom en kilometer — eller hyr en hydda när du vill ha mer komfort.",
     statPlatser: "vindskydd &amp; grillplatser",
     statSlingor: "slingor på Skåneleden",
     statBussar: "busshållplatser",
@@ -616,9 +616,9 @@ const TEXTER = {
   },
   en: {
     titel: "Shelters & Huts in Skåne",
-    kicker: "Outdoor life in Skåne",
-    rubrik: "Sleep under the open sky — or in a hut in the beech forest",
-    ingress: "Skåne is full of lovely wind shelters where you sleep for free along the Skåneleden trail, and unique huts you can rent when you want a bit more comfort. Explore the map — switch the layers on and off as you like.",
+    kicker: "Hike the Skåneleden trail",
+    rubrik: "Plan your hike on the Skåneleden trail — and sleep for free along the way",
+    ingress: "All seven loops SL1–SL7 on one map, with wind shelters where you sleep for free, water stations, grocery stores and bus stops near the trail. Pick a loop to see everything within one kilometre — or rent a hut when you want more comfort.",
     statPlatser: "shelters &amp; barbecue spots",
     statSlingor: "Skåneleden loop trails",
     statBussar: "bus stops",
@@ -684,9 +684,9 @@ const TEXTER = {
   },
   de: {
     titel: "Schutzhütten & Hütten in Skåne",
-    kicker: "Outdoor-Leben in Skåne",
-    rubrik: "Schlafen unter freiem Himmel — oder in einer Hütte im Buchenwald",
-    ingress: "Skåne ist voller schöner Schutzhütten, in denen du entlang des Skåneleden kostenlos übernachtest, und einzigartiger Hütten, die du mieten kannst, wenn du etwas mehr Komfort möchtest. Erkunde die Karte — schalte die Ebenen nach Bedarf ein und aus.",
+    kicker: "Den Skåneleden wandern",
+    rubrik: "Plane deine Wanderung auf dem Skåneleden — und übernachte unterwegs kostenlos",
+    ingress: "Alle sieben Schleifen SL1–SL7 auf einer Karte, mit Schutzhütten zum kostenlosen Übernachten, Wasserstellen, Supermärkten und Bushaltestellen nahe am Weg. Wähle eine Schleife und sieh alles im Umkreis von einem Kilometer — oder miete eine Hütte, wenn du mehr Komfort möchtest.",
     statPlatser: "Schutzhütten &amp; Grillplätze",
     statSlingor: "Skåneleden-Rundwege",
     statBussar: "Bushaltestellen",
