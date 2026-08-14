@@ -350,6 +350,36 @@
   }
   .legend-knapp:hover { background: #eef3ea; }
 
+  /* ---------- Språkväljare ---------- */
+  .sprak-valjare { display: inline-flex; gap: 0.35rem; }
+  header .sprak-valjare {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    z-index: 1;
+  }
+  .sprak-knapp {
+    border: 1px solid rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.08);
+    color: var(--sand);
+    border-radius: 999px;
+    padding: 0.2rem 0.65rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-family: inherit;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+  }
+  .sprak-knapp:hover { background: rgba(255,255,255,0.18); }
+  .sprak-knapp.aktiv { background: var(--sand); color: var(--skog-mork); border-color: var(--sand); }
+  #filter-panel .sprak-knapp {
+    border-color: var(--sand-mork);
+    background: #fff;
+    color: var(--text-svag);
+  }
+  #filter-panel .sprak-knapp:hover { color: var(--text); }
+  #filter-panel .sprak-knapp.aktiv { background: var(--skog); border-color: var(--skog); color: #fff; }
+
   /* Reseknappen i busshållplatsernas popup. Leaflet sätter egen länkfärg
      på a-element i kartan, därav den mer specifika selektorn. */
   .leaflet-container a.resa-knapp {
@@ -385,13 +415,14 @@
 <body>
 
 <header>
-  <div class="kicker">Friluftsliv i Skåne</div>
-  <h1>Sov under bar himmel — eller i en hydda i bokskogen</h1>
-  <p class="ingress">Skåne är fullt av fina vindskydd där du sover gratis längs Skåneleden, och unika hyddor du kan hyra när du vill ha lite mer komfort. Utforska kartan — tänd och släck lagren efter behov.</p>
+  <div class="sprak-valjare" aria-label="Språk / Language / Sprache"></div>
+  <div class="kicker" data-i18n="kicker">Friluftsliv i Skåne</div>
+  <h1 data-i18n="rubrik">Sov under bar himmel — eller i en hydda i bokskogen</h1>
+  <p class="ingress" data-i18n="ingress">Skåne är fullt av fina vindskydd där du sover gratis längs Skåneleden, och unika hyddor du kan hyra när du vill ha lite mer komfort. Utforska kartan — tänd och släck lagren efter behov.</p>
   <div class="hero-stats">
-    <span>⛺ <strong id="stat-platser"></strong> vindskydd &amp; grillplatser</span>
-    <span>🥾 <strong>7</strong> slingor på Skåneleden</span>
-    <span>🚌 <strong id="stat-bussar"></strong> busshållplatser</span>
+    <span>⛺ <strong id="stat-platser"></strong> <span data-i18n="statPlatser">vindskydd &amp; grillplatser</span></span>
+    <span>🥾 <strong>7</strong> <span data-i18n="statSlingor">slingor på Skåneleden</span></span>
+    <span>🚌 <strong id="stat-bussar"></strong> <span data-i18n="statBussar">busshållplatser</span></span>
   </div>
 </header>
 
@@ -400,42 +431,42 @@
   <div id="karta-wrap">
     <div id="karta"></div>
     <div id="intro-ruta" hidden>
-      <strong>👋 Välkommen!</strong>
-      <p>Kartan startar avskalad så att den är snabb. Tryck på <strong>☰-knappen</strong> här uppe till höger för att tända Skåneledens slingor, busshållplatser, matbutiker och fler lager.</p>
-      <button id="intro-ok">Okej, jag förstår</button>
+      <strong data-i18n="introHej">👋 Välkommen!</strong>
+      <p data-i18n="introText">Kartan startar avskalad så att den är snabb. Tryck på <strong>☰-knappen</strong> här uppe till höger för att tända Skåneledens slingor, busshållplatser, matbutiker och fler lager.</p>
+      <button id="intro-ok" data-i18n="introOk">Okej, jag förstår</button>
     </div>
     <div id="filter-panel" class="dold">
       <div class="filter-huvud">
-        <strong>Visa på kartan</strong>
-        <button id="stang-filter" title="Stäng">&times;</button>
+        <strong data-i18n="filterTitel">Visa på kartan</strong>
+        <button id="stang-filter" title="Stäng" data-i18n-title="stang">&times;</button>
       </div>
       <div class="filter-grupp">
-        <label class="filter-rad"><input type="checkbox" id="visa-utvalda" checked> <span class="ikon-emoji">⭐</span> Utvalda vindskydd</label>
-        <label class="filter-rad"><input type="checkbox" id="visa-hyddor" checked> <span class="ikon-emoji">🛖</span> Hyddor att hyra</label>
-        <label class="filter-rad"><input type="checkbox" id="visa-alla-vindskydd" checked> <span class="ikon-emoji">⛺</span> Alla vindskydd (<span id="antal-vindskydd"></span>)</label>
-        <label class="filter-rad"><input type="checkbox" id="visa-alla-grillar"> <span class="ikon-emoji" id="eld-ikon-panel"></span> Alla grillplatser (<span id="antal-grillar"></span>)</label>
-        <label class="filter-rad"><input type="checkbox" id="visa-leder"> <span class="ikon-emoji">🥾</span> Andra vandringsleder</label>
-        <label class="filter-rad"><input type="checkbox" id="visa-bussar"> <span class="ikon-emoji">🚌</span> Busshållplatser (<span id="antal-bussar"></span>)</label>
-        <label class="filter-rad"><input type="checkbox" id="visa-vatten"> <span class="ikon-emoji">💧</span> Vattenstationer (<span id="antal-vatten"></span>)</label>
+        <label class="filter-rad"><input type="checkbox" id="visa-utvalda" checked> <span class="ikon-emoji">⭐</span> <span data-i18n="fUtvalda">Utvalda vindskydd</span></label>
+        <label class="filter-rad"><input type="checkbox" id="visa-hyddor" checked> <span class="ikon-emoji">🛖</span> <span data-i18n="fHyddor">Hyddor att hyra</span></label>
+        <label class="filter-rad"><input type="checkbox" id="visa-alla-vindskydd" checked> <span class="ikon-emoji">⛺</span> <span data-i18n="fAllaVindskydd">Alla vindskydd</span> (<span id="antal-vindskydd"></span>)</label>
+        <label class="filter-rad"><input type="checkbox" id="visa-alla-grillar"> <span class="ikon-emoji" id="eld-ikon-panel"></span> <span data-i18n="fAllaGrillar">Alla grillplatser</span> (<span id="antal-grillar"></span>)</label>
+        <label class="filter-rad"><input type="checkbox" id="visa-leder"> <span class="ikon-emoji">🥾</span> <span data-i18n="fLeder">Andra vandringsleder</span></label>
+        <label class="filter-rad"><input type="checkbox" id="visa-bussar"> <span class="ikon-emoji">🚌</span> <span data-i18n="fBussar">Busshållplatser</span> (<span id="antal-bussar"></span>)</label>
+        <label class="filter-rad"><input type="checkbox" id="visa-vatten"> <span class="ikon-emoji">💧</span> <span data-i18n="fVatten">Vattenstationer</span> (<span id="antal-vatten"></span>)</label>
       </div>
-      <div class="filter-rubrik">Skåneledens slingor</div>
+      <div class="filter-rubrik" data-i18n="rubrSlingor">Skåneledens slingor</div>
       <div class="filter-grupp">
-        <label class="filter-rad"><input type="checkbox" id="visa-sl1"> <span class="prick" style="background:#c0392b;"></span> SL1 Kust till kust</label>
-        <label class="filter-rad"><input type="checkbox" id="visa-sl2"> <span class="prick" style="background:#2166ac;"></span> SL2 Nord till syd</label>
-        <label class="filter-rad"><input type="checkbox" id="visa-sl3"> <span class="prick" style="background:#35978f;"></span> SL3 Ås till ås</label>
-        <label class="filter-rad"><input type="checkbox" id="visa-sl4"> <span class="prick" style="background:#e08214;"></span> SL4 Österlen</label>
-        <label class="filter-rad"><input type="checkbox" id="visa-sl5"> <span class="prick" style="background:#762a83;"></span> SL5 Öresund</label>
-        <label class="filter-rad"><input type="checkbox" id="visa-sl6"> <span class="prick" style="background:#8c510a;"></span> SL6 Vattenriket</label>
-        <label class="filter-rad"><input type="checkbox" id="visa-sl7"> <span class="prick" style="background:#c2185b;"></span> SL7 Sydkust</label>
+        <label class="filter-rad"><input type="checkbox" id="visa-sl1"> <span class="prick" style="background:#c0392b;"></span> <span data-i18n="fSL1">SL1 Kust till kust</span></label>
+        <label class="filter-rad"><input type="checkbox" id="visa-sl2"> <span class="prick" style="background:#2166ac;"></span> <span data-i18n="fSL2">SL2 Nord till syd</span></label>
+        <label class="filter-rad"><input type="checkbox" id="visa-sl3"> <span class="prick" style="background:#35978f;"></span> <span data-i18n="fSL3">SL3 Ås till ås</span></label>
+        <label class="filter-rad"><input type="checkbox" id="visa-sl4"> <span class="prick" style="background:#e08214;"></span> <span data-i18n="fSL4">SL4 Österlen</span></label>
+        <label class="filter-rad"><input type="checkbox" id="visa-sl5"> <span class="prick" style="background:#762a83;"></span> <span data-i18n="fSL5">SL5 Öresund</span></label>
+        <label class="filter-rad"><input type="checkbox" id="visa-sl6"> <span class="prick" style="background:#8c510a;"></span> <span data-i18n="fSL6">SL6 Vattenriket</span></label>
+        <label class="filter-rad"><input type="checkbox" id="visa-sl7"> <span class="prick" style="background:#c2185b;"></span> <span data-i18n="fSL7">SL7 Sydkust</span></label>
       </div>
-      <div class="filter-rubrik">Sevärdheter</div>
+      <div class="filter-rubrik" data-i18n="rubrSevardheter">Sevärdheter</div>
       <div class="filter-grupp">
-        <label class="filter-rad"><input type="checkbox" id="visa-utsikt"> <span class="ikon-emoji">🔭</span> Utsiktspunkter (<span id="antal-utsikt"></span>)</label>
-        <label class="filter-rad"><input type="checkbox" id="visa-slott"> <span class="ikon-emoji">🏰</span> Slott &amp; borgar (<span id="antal-slott"></span>)</label>
-        <label class="filter-rad"><input type="checkbox" id="visa-fornminne"> <span class="ikon-emoji">🗿</span> Fornminnen (<span id="antal-fornminne"></span>)</label>
-        <label class="filter-rad"><input type="checkbox" id="visa-ovrigt"> <span class="ikon-emoji">📸</span> Övriga sevärdheter (<span id="antal-ovrigt"></span>)</label>
+        <label class="filter-rad"><input type="checkbox" id="visa-utsikt"> <span class="ikon-emoji">🔭</span> <span data-i18n="fUtsikt">Utsiktspunkter</span> (<span id="antal-utsikt"></span>)</label>
+        <label class="filter-rad"><input type="checkbox" id="visa-slott"> <span class="ikon-emoji">🏰</span> <span data-i18n="fSlott">Slott &amp; borgar</span> (<span id="antal-slott"></span>)</label>
+        <label class="filter-rad"><input type="checkbox" id="visa-fornminne"> <span class="ikon-emoji">🗿</span> <span data-i18n="fFornminne">Fornminnen</span> (<span id="antal-fornminne"></span>)</label>
+        <label class="filter-rad"><input type="checkbox" id="visa-ovrigt"> <span class="ikon-emoji">📸</span> <span data-i18n="fOvrigt">Övriga sevärdheter</span> (<span id="antal-ovrigt"></span>)</label>
       </div>
-      <div class="filter-rubrik">🛒 Matbutiker</div>
+      <div class="filter-rubrik" data-i18n="rubrMat">🛒 Matbutiker</div>
       <div class="filter-grupp">
         <label class="filter-rad"><input type="checkbox" id="visa-ica"> <span class="prick" style="background:#e3000b;"></span> ICA (<span id="antal-ica"></span>)</label>
         <label class="filter-rad"><input type="checkbox" id="visa-coop"> <span class="prick" style="background:#00a142;"></span> Coop (<span id="antal-coop"></span>)</label>
@@ -443,29 +474,31 @@
         <label class="filter-rad"><input type="checkbox" id="visa-willys"> <span class="prick" style="background:#1d1d1b;"></span> Willys (<span id="antal-willys"></span>)</label>
         <label class="filter-rad"><input type="checkbox" id="visa-hemkop"> <span class="prick" style="background:#e87b00;"></span> Hemköp (<span id="antal-hemkop"></span>)</label>
         <label class="filter-rad"><input type="checkbox" id="visa-citygross"> <span class="prick" style="background:#003da5;"></span> City Gross (<span id="antal-citygross"></span>)</label>
-        <label class="filter-rad"><input type="checkbox" id="visa-ovrig"> <span class="prick" style="background:#7d7d7d;"></span> Övriga butiker (<span id="antal-ovrig"></span>)</label>
-        <label class="filter-rad"><input type="checkbox" id="visa-gardsbutik"> <span class="ikon-emoji">🧺</span> Gårdsbutiker (<span id="antal-gardsbutik"></span>)</label>
+        <label class="filter-rad"><input type="checkbox" id="visa-ovrig"> <span class="prick" style="background:#7d7d7d;"></span> <span data-i18n="fOvrigButik">Övriga butiker</span> (<span id="antal-ovrig"></span>)</label>
+        <label class="filter-rad"><input type="checkbox" id="visa-gardsbutik"> <span class="ikon-emoji">🧺</span> <span data-i18n="fGardsbutik">Gårdsbutiker</span> (<span id="antal-gardsbutik"></span>)</label>
       </div>
       <div class="filter-rubrik">Offline</div>
       <div class="filter-grupp">
-        <label class="filter-rad"><input type="checkbox" id="ladda-kartor"> <span class="ikon-emoji">📥</span> Spara kartrutor för offline</label>
+        <label class="filter-rad"><input type="checkbox" id="ladda-kartor"> <span class="ikon-emoji">📥</span> <span data-i18n="fLaddaKartor">Spara kartrutor för offline</span></label>
       </div>
+      <div class="filter-rubrik" data-i18n="rubrSprak">Språk</div>
+      <div class="filter-grupp sprak-valjare"></div>
       <div class="filter-knappar">
-        <button class="legend-knapp" id="markera-alla">Markera alla</button>
-        <button class="legend-knapp" id="avmarkera-alla">Avmarkera alla</button>
+        <button class="legend-knapp" id="markera-alla" data-i18n="markeraAlla">Markera alla</button>
+        <button class="legend-knapp" id="avmarkera-alla" data-i18n="avmarkeraAlla">Avmarkera alla</button>
       </div>
     </div>
   </div>
 
   <section id="leder">
-    <h2>Skåneledens sju slingor</h2>
-    <p class="sektion-ingress">Skåneleden är uppdelad i sju slingor med var sin karaktär — från göingeskog till öppet hav. Tryck på ett kort så tänds slingan på kartan.</p>
+    <h2 data-i18n="lederRubrik">Skåneledens sju slingor</h2>
+    <p class="sektion-ingress" data-i18n="lederIngress">Skåneleden är uppdelad i sju slingor med var sin karaktär — från göingeskog till öppet hav. Tryck på ett kort så tänds slingan på kartan.</p>
     <div id="led-kort"></div>
   </section>
 
 </main>
 
-<footer>
+<footer data-i18n="footer">
   Byggd med kärlek till skånsk natur · Källor: <a href="https://skanskalandskap.se/">Stiftelsen Skånska Landskap</a>, <a href="https://www.skaneleden.se/">Skåneleden</a>, <a href="https://vindskyddskartan.se/">Vindskyddskartan</a> · Kartdata © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>
 </footer>
 
@@ -483,14 +516,245 @@
 // Deferrade skript kör alltid klart före DOMContentLoaded, så här inne
 // finns alla globaler (L, bussHallplatser, skaneledenEtapper osv.).
 document.addEventListener("DOMContentLoaded", () => {
+// ---------- Språk (i18n) ----------
+// All gränssnittstext finns på svenska, engelska och tyska. Valet sparas i
+// localStorage; vid första besöket följs webbläsarens språk. Popuper byggs
+// först när de öppnas, så de hämtar alltid texten för det aktiva språket.
+const TEXTER = {
+  sv: {
+    titel: "Vindskydd & Hyddor i Skåne",
+    kicker: "Friluftsliv i Skåne",
+    rubrik: "Sov under bar himmel — eller i en hydda i bokskogen",
+    ingress: "Skåne är fullt av fina vindskydd där du sover gratis längs Skåneleden, och unika hyddor du kan hyra när du vill ha lite mer komfort. Utforska kartan — tänd och släck lagren efter behov.",
+    statPlatser: "vindskydd &amp; grillplatser",
+    statSlingor: "slingor på Skåneleden",
+    statBussar: "busshållplatser",
+    introHej: "👋 Välkommen!",
+    introText: "Kartan startar avskalad så att den är snabb. Tryck på <strong>☰-knappen</strong> här uppe till höger för att tända Skåneledens slingor, busshållplatser, matbutiker och fler lager.",
+    introOk: "Okej, jag förstår",
+    filterTitel: "Visa på kartan",
+    stang: "Stäng",
+    fUtvalda: "Utvalda vindskydd",
+    fHyddor: "Hyddor att hyra",
+    fAllaVindskydd: "Alla vindskydd",
+    fAllaGrillar: "Alla grillplatser",
+    fLeder: "Andra vandringsleder",
+    fBussar: "Busshållplatser",
+    fVatten: "Vattenstationer",
+    rubrSlingor: "Skåneledens slingor",
+    fSL1: "SL1 Kust till kust",
+    fSL2: "SL2 Nord till syd",
+    fSL3: "SL3 Ås till ås",
+    fSL4: "SL4 Österlen",
+    fSL5: "SL5 Öresund",
+    fSL6: "SL6 Vattenriket",
+    fSL7: "SL7 Sydkust",
+    rubrSevardheter: "Sevärdheter",
+    fUtsikt: "Utsiktspunkter",
+    fSlott: "Slott &amp; borgar",
+    fFornminne: "Fornminnen",
+    fOvrigt: "Övriga sevärdheter",
+    rubrMat: "🛒 Matbutiker",
+    fOvrigButik: "Övriga butiker",
+    fGardsbutik: "Gårdsbutiker",
+    fLaddaKartor: "Spara kartrutor för offline",
+    rubrSprak: "Språk",
+    markeraAlla: "Markera alla",
+    avmarkeraAlla: "Avmarkera alla",
+    lederRubrik: "Skåneledens sju slingor",
+    lederIngress: "Skåneleden är uppdelad i sju slingor med var sin karaktär — från göingeskog till öppet hav. Tryck på ett kort så tänds slingan på kartan.",
+    footer: 'Byggd med kärlek till skånsk natur · Källor: <a href="https://skanskalandskap.se/">Stiftelsen Skånska Landskap</a>, <a href="https://www.skaneleden.se/">Skåneleden</a>, <a href="https://vindskyddskartan.se/">Vindskyddskartan</a> · Kartdata © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    platsFolj: "Följ min plats",
+    platsSluta: "Sluta följa min plats",
+    filterKnapp: "Filter och lager",
+    fullskarm: "Fullskärm",
+    skrivUt: "Skriv ut kartvyn",
+    alertPlats: "Kunde inte hämta din plats. Kontrollera att platstjänster är tillåtna i webbläsaren.",
+    alertFullskarm: "Fullskärm blockerades av webbläsaren.",
+    harArDu: "📍 Här är du!",
+    lasMer: "Läs mer",
+    gratisVindskydd: "Gratis vindskydd",
+    hyddaAttHyra: "Hydda att hyra",
+    vindskydd: "Vindskydd",
+    grillplats: "Grillplats",
+    vindskyddMedGrill: "Vindskydd med grillplats",
+    nara: "Nära",
+    dricksvatten: "Dricksvatten",
+    busshallplats: "Busshållplats",
+    sokResaHit: "Sök resa hit i appen",
+    sokResaApp: "Sök resa i appen",
+    sokResaWebb: "Sök resa hos Skånetrafiken",
+    gardsbutik: "Gårdsbutik",
+    etappinfo: "Etappinfo på skaneleden.se",
+    vindskyddNaraLeden: "vindskydd nära leden",
+    bokskogenPopup: "<strong>🌳 Bokskogen i Torup</strong><br>Svedala · 6 vindskydd &amp; många grillplatser — zooma in för att se dem"
+  },
+  en: {
+    titel: "Shelters & Huts in Skåne",
+    kicker: "Outdoor life in Skåne",
+    rubrik: "Sleep under the open sky — or in a hut in the beech forest",
+    ingress: "Skåne is full of lovely wind shelters where you sleep for free along the Skåneleden trail, and unique huts you can rent when you want a bit more comfort. Explore the map — switch the layers on and off as you like.",
+    statPlatser: "shelters &amp; barbecue spots",
+    statSlingor: "Skåneleden loop trails",
+    statBussar: "bus stops",
+    introHej: "👋 Welcome!",
+    introText: "The map starts clean to keep it fast. Tap the <strong>☰ button</strong> up here on the right to switch on the Skåneleden loops, bus stops, grocery stores and more layers.",
+    introOk: "Got it",
+    filterTitel: "Show on the map",
+    stang: "Close",
+    fUtvalda: "Featured shelters",
+    fHyddor: "Huts for rent",
+    fAllaVindskydd: "All shelters",
+    fAllaGrillar: "All barbecue spots",
+    fLeder: "Other hiking trails",
+    fBussar: "Bus stops",
+    fVatten: "Drinking water",
+    rubrSlingor: "Skåneleden loops",
+    fSL1: "SL1 Coast to coast",
+    fSL2: "SL2 North to south",
+    fSL3: "SL3 Ridge to ridge",
+    fSL4: "SL4 Österlen",
+    fSL5: "SL5 Öresund",
+    fSL6: "SL6 Vattenriket",
+    fSL7: "SL7 South coast",
+    rubrSevardheter: "Sights",
+    fUtsikt: "Viewpoints",
+    fSlott: "Castles &amp; forts",
+    fFornminne: "Ancient monuments",
+    fOvrigt: "Other sights",
+    rubrMat: "🛒 Grocery stores",
+    fOvrigButik: "Other stores",
+    fGardsbutik: "Farm shops",
+    fLaddaKartor: "Save map tiles for offline",
+    rubrSprak: "Language",
+    markeraAlla: "Select all",
+    avmarkeraAlla: "Deselect all",
+    lederRubrik: "The seven loops of Skåneleden",
+    lederIngress: "Skåneleden is divided into seven loop trails, each with its own character — from Göinge forest to open sea. Tap a card to light up the loop on the map.",
+    footer: 'Built with love for the nature of Skåne · Sources: <a href="https://skanskalandskap.se/">Stiftelsen Skånska Landskap</a>, <a href="https://www.skaneleden.se/">Skåneleden</a>, <a href="https://vindskyddskartan.se/">Vindskyddskartan</a> · Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    platsFolj: "Follow my location",
+    platsSluta: "Stop following my location",
+    filterKnapp: "Filters and layers",
+    fullskarm: "Full screen",
+    skrivUt: "Print the map view",
+    alertPlats: "Could not get your location. Check that location services are allowed in your browser.",
+    alertFullskarm: "Full screen was blocked by the browser.",
+    harArDu: "📍 You are here!",
+    lasMer: "Read more",
+    gratisVindskydd: "Free shelter",
+    hyddaAttHyra: "Hut for rent",
+    vindskydd: "Shelter",
+    grillplats: "Barbecue spot",
+    vindskyddMedGrill: "Shelter with barbecue spot",
+    nara: "Near",
+    dricksvatten: "Drinking water",
+    busshallplats: "Bus stop",
+    sokResaHit: "Plan a trip here in the app",
+    sokResaApp: "Plan a trip in the app",
+    sokResaWebb: "Plan your trip with Skånetrafiken",
+    gardsbutik: "Farm shop",
+    etappinfo: "Stage info at skaneleden.se",
+    vindskyddNaraLeden: "shelters near the trail",
+    bokskogenPopup: "<strong>🌳 Torup beech forest</strong><br>Svedala · 6 shelters &amp; many barbecue spots — zoom in to see them"
+  },
+  de: {
+    titel: "Schutzhütten & Hütten in Skåne",
+    kicker: "Outdoor-Leben in Skåne",
+    rubrik: "Schlafen unter freiem Himmel — oder in einer Hütte im Buchenwald",
+    ingress: "Skåne ist voller schöner Schutzhütten, in denen du entlang des Skåneleden kostenlos übernachtest, und einzigartiger Hütten, die du mieten kannst, wenn du etwas mehr Komfort möchtest. Erkunde die Karte — schalte die Ebenen nach Bedarf ein und aus.",
+    statPlatser: "Schutzhütten &amp; Grillplätze",
+    statSlingor: "Skåneleden-Rundwege",
+    statBussar: "Bushaltestellen",
+    introHej: "👋 Willkommen!",
+    introText: "Die Karte startet aufgeräumt, damit sie schnell lädt. Tippe hier oben rechts auf die <strong>☰-Taste</strong>, um die Skåneleden-Rundwege, Bushaltestellen, Supermärkte und weitere Ebenen einzublenden.",
+    introOk: "Alles klar",
+    filterTitel: "Auf der Karte anzeigen",
+    stang: "Schließen",
+    fUtvalda: "Ausgewählte Schutzhütten",
+    fHyddor: "Hütten zum Mieten",
+    fAllaVindskydd: "Alle Schutzhütten",
+    fAllaGrillar: "Alle Grillplätze",
+    fLeder: "Andere Wanderwege",
+    fBussar: "Bushaltestellen",
+    fVatten: "Trinkwasser",
+    rubrSlingor: "Skåneleden-Rundwege",
+    fSL1: "SL1 Küste zu Küste",
+    fSL2: "SL2 Nord nach Süd",
+    fSL3: "SL3 Grat zu Grat",
+    fSL4: "SL4 Österlen",
+    fSL5: "SL5 Öresund",
+    fSL6: "SL6 Vattenriket",
+    fSL7: "SL7 Südküste",
+    rubrSevardheter: "Sehenswürdigkeiten",
+    fUtsikt: "Aussichtspunkte",
+    fSlott: "Schlösser &amp; Burgen",
+    fFornminne: "Vorgeschichtliche Stätten",
+    fOvrigt: "Weitere Sehenswürdigkeiten",
+    rubrMat: "🛒 Supermärkte",
+    fOvrigButik: "Weitere Läden",
+    fGardsbutik: "Hofläden",
+    fLaddaKartor: "Kartenkacheln offline speichern",
+    rubrSprak: "Sprache",
+    markeraAlla: "Alle auswählen",
+    avmarkeraAlla: "Alle abwählen",
+    lederRubrik: "Die sieben Rundwege des Skåneleden",
+    lederIngress: "Der Skåneleden ist in sieben Rundwege mit jeweils eigenem Charakter unterteilt — vom Göinge-Wald bis zum offenen Meer. Tippe auf eine Karte, um den Weg auf der Karte hervorzuheben.",
+    footer: 'Gebaut mit Liebe zur schonischen Natur · Quellen: <a href="https://skanskalandskap.se/">Stiftelsen Skånska Landskap</a>, <a href="https://www.skaneleden.se/">Skåneleden</a>, <a href="https://vindskyddskartan.se/">Vindskyddskartan</a> · Kartendaten © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    platsFolj: "Meinen Standort verfolgen",
+    platsSluta: "Standortverfolgung beenden",
+    filterKnapp: "Filter und Ebenen",
+    fullskarm: "Vollbild",
+    skrivUt: "Kartenansicht drucken",
+    alertPlats: "Dein Standort konnte nicht ermittelt werden. Prüfe, ob Standortdienste im Browser erlaubt sind.",
+    alertFullskarm: "Der Vollbildmodus wurde vom Browser blockiert.",
+    harArDu: "📍 Hier bist du!",
+    lasMer: "Mehr erfahren",
+    gratisVindskydd: "Kostenlose Schutzhütte",
+    hyddaAttHyra: "Hütte zum Mieten",
+    vindskydd: "Schutzhütte",
+    grillplats: "Grillplatz",
+    vindskyddMedGrill: "Schutzhütte mit Grillplatz",
+    nara: "Nahe",
+    dricksvatten: "Trinkwasser",
+    busshallplats: "Bushaltestelle",
+    sokResaHit: "Route hierher in der App suchen",
+    sokResaApp: "Route in der App suchen",
+    sokResaWebb: "Verbindung bei Skånetrafiken suchen",
+    gardsbutik: "Hofladen",
+    etappinfo: "Etappeninfo auf skaneleden.se",
+    vindskyddNaraLeden: "Schutzhütten am Weg",
+    bokskogenPopup: "<strong>🌳 Buchenwald von Torup</strong><br>Svedala · 6 Schutzhütten &amp; viele Grillplätze — zum Ansehen hineinzoomen"
+  }
+};
+const SPRAK = Object.keys(TEXTER);
+let sprak = localStorage.getItem("sprak");
+if (!SPRAK.includes(sprak)) {
+  const webblasare = (navigator.language || "en").slice(0, 2).toLowerCase();
+  sprak = SPRAK.includes(webblasare) ? webblasare : "en";
+}
+const t = nyckel => TEXTER[sprak][nyckel] ?? TEXTER.sv[nyckel];
+// Datafält som finns på flera språk lagras som { sv, en, de } — vanliga
+// strängar (t.ex. butiksnamn) passerar oförändrade.
+const oversatt = varde => typeof varde === "string" || Array.isArray(varde)
+  ? varde
+  : (varde[sprak] ?? varde.sv);
+
 const vindskydd = [
   {
     namn: "Eksholmssjön",
     kommun: "Svedala",
     lat: 55.532, lng: 13.207,
     emoji: "🌊",
-    beskrivning: "Arkitektritat tvåvånings-vindskydd byggt av Arknat, med former lånade från näckrosbladen i sjön. Ett av nio specialdesignade vindskydd längs Skåneleden — gratis lyx på riktigt.",
-    fakta: ["Arkitektritat", "Vid sjö", "Skåneleden SL2"],
+    beskrivning: {
+      sv: "Arkitektritat tvåvånings-vindskydd byggt av Arknat, med former lånade från näckrosbladen i sjön. Ett av nio specialdesignade vindskydd längs Skåneleden — gratis lyx på riktigt.",
+      en: "Architect-designed two-storey shelter built by Arknat, with shapes borrowed from the water lilies in the lake. One of nine specially designed shelters along Skåneleden — free luxury for real.",
+      de: "Von Architekten entworfene zweistöckige Schutzhütte von Arknat, deren Formen an die Seerosenblätter des Sees angelehnt sind. Eine von neun besonders gestalteten Schutzhütten am Skåneleden — Luxus zum Nulltarif."
+    },
+    fakta: {
+      sv: ["Arkitektritat", "Vid sjö", "Skåneleden SL2"],
+      en: ["Architect-designed", "Lakeside", "Skåneleden SL2"],
+      de: ["Architektenentwurf", "Am See", "Skåneleden SL2"]
+    },
     lank: "https://www.skaneleden.se/"
   },
   {
@@ -498,8 +762,16 @@ const vindskydd = [
     kommun: "Kävlinge",
     lat: 55.756, lng: 12.906,
     emoji: "⛵",
-    beskrivning: "Designat vindskydd precis vid kusten med havsutsikt över Öresund. Somna till vågskvalp och vakna till soluppgång över hamnen.",
-    fakta: ["Designvindskydd", "Vid havet", "Skåneleden SL5"],
+    beskrivning: {
+      sv: "Designat vindskydd precis vid kusten med havsutsikt över Öresund. Somna till vågskvalp och vakna till soluppgång över hamnen.",
+      en: "Designer shelter right by the coast with sea views over the Öresund. Fall asleep to lapping waves and wake to sunrise over the harbour.",
+      de: "Design-Schutzhütte direkt an der Küste mit Meerblick über den Öresund. Schlaf zum Plätschern der Wellen ein und wach zum Sonnenaufgang über dem Hafen auf."
+    },
+    fakta: {
+      sv: ["Designvindskydd", "Vid havet", "Skåneleden SL5"],
+      en: ["Designer shelter", "By the sea", "Skåneleden SL5"],
+      de: ["Design-Hütte", "Am Meer", "Skåneleden SL5"]
+    },
     lank: "https://www.skaneleden.se/"
   },
   {
@@ -507,8 +779,16 @@ const vindskydd = [
     kommun: "Svalöv",
     lat: 56.035, lng: 13.160,
     emoji: "🌳",
-    beskrivning: "Vindskydd i trolsk bokskog med klippor och rasbranter, nära sägenomspunna grottan Snuvestuan. Grillplats finns nedanför.",
-    fakta: ["Bokskog", "Grillplats", "Nära Söderåsens nationalpark"],
+    beskrivning: {
+      sv: "Vindskydd i trolsk bokskog med klippor och rasbranter, nära sägenomspunna grottan Snuvestuan. Grillplats finns nedanför.",
+      en: "Shelter in an enchanting beech forest with cliffs and scree slopes, close to the legendary cave Snuvestuan. Barbecue spot just below.",
+      de: "Schutzhütte in zauberhaftem Buchenwald mit Felsen und Steilhängen, nahe der sagenumwobenen Höhle Snuvestuan. Grillplatz gleich unterhalb."
+    },
+    fakta: {
+      sv: ["Bokskog", "Grillplats", "Nära Söderåsens nationalpark"],
+      en: ["Beech forest", "Barbecue spot", "Near Söderåsen National Park"],
+      de: ["Buchenwald", "Grillplatz", "Nahe Nationalpark Söderåsen"]
+    },
     lank: "https://skanskalandskap.se/"
   },
   {
@@ -516,8 +796,16 @@ const vindskydd = [
     kommun: "Höör",
     lat: 55.976, lng: 13.508,
     emoji: "🏞️",
-    beskrivning: "Vindskydd vid södra delen av Dagstorpssjön i naturreservatet Bjäret. Övernattning är tillåten — men elda inte inne i reservatet.",
-    fakta: ["Vid sjö", "Naturreservat", "Mitt i Skåne"],
+    beskrivning: {
+      sv: "Vindskydd vid södra delen av Dagstorpssjön i naturreservatet Bjäret. Övernattning är tillåten — men elda inte inne i reservatet.",
+      en: "Shelter at the southern end of lake Dagstorpssjön in the Bjäret nature reserve. Overnight stays are allowed — but no campfires inside the reserve.",
+      de: "Schutzhütte am Südufer des Dagstorpssjön im Naturreservat Bjäret. Übernachten ist erlaubt — aber kein offenes Feuer im Reservat."
+    },
+    fakta: {
+      sv: ["Vid sjö", "Naturreservat", "Mitt i Skåne"],
+      en: ["Lakeside", "Nature reserve", "In the middle of Skåne"],
+      de: ["Am See", "Naturreservat", "Mitten in Skåne"]
+    },
     lank: "https://skanskalandskap.se/"
   },
   {
@@ -525,8 +813,16 @@ const vindskydd = [
     kommun: "Hörby",
     lat: 55.912, lng: 13.632,
     emoji: "♿",
-    beskrivning: "Tillgänglighetsanpassad sova ute-plats i norra Fulltofta strövområde: grillplats, vindskydd och vandringsled på träspång. Perfekt första natten ute med barn.",
-    fakta: ["Tillgänglig", "Träspång", "Grillplats"],
+    beskrivning: {
+      sv: "Tillgänglighetsanpassad sova ute-plats i norra Fulltofta strövområde: grillplats, vindskydd och vandringsled på träspång. Perfekt första natten ute med barn.",
+      en: "Accessible sleep-outdoors site in the northern Fulltofta recreation area: barbecue spot, shelter and a boardwalk trail. Perfect for a first night out with kids.",
+      de: "Barrierefreier Draußen-Schlafplatz im nördlichen Erholungsgebiet Fulltofta: Grillplatz, Schutzhütte und Wanderweg auf Holzstegen. Perfekt für die erste Nacht draußen mit Kindern."
+    },
+    fakta: {
+      sv: ["Tillgänglig", "Träspång", "Grillplats"],
+      en: ["Accessible", "Boardwalk", "Barbecue spot"],
+      de: ["Barrierefrei", "Holzsteg", "Grillplatz"]
+    },
     lank: "https://skanskalandskap.se/"
   },
   {
@@ -534,8 +830,16 @@ const vindskydd = [
     kommun: "Örkelljunga",
     lat: 56.297, lng: 13.235,
     emoji: "🔥",
-    beskrivning: "Vindskydd med alla bekvämligheter du kan önska dig i friluftsväg — grillplats, bord och fin natur i norra Skånes skogsbygd.",
-    fakta: ["Grillplats", "Skogsbygd", "Lättillgängligt"],
+    beskrivning: {
+      sv: "Vindskydd med alla bekvämligheter du kan önska dig i friluftsväg — grillplats, bord och fin natur i norra Skånes skogsbygd.",
+      en: "Shelter with every outdoor comfort you could ask for — barbecue spot, table and lovely nature in the forests of northern Skåne.",
+      de: "Schutzhütte mit allem Komfort, den man sich draußen wünschen kann — Grillplatz, Tisch und schöne Natur in den Wäldern Nordschonens."
+    },
+    fakta: {
+      sv: ["Grillplats", "Skogsbygd", "Lättillgängligt"],
+      en: ["Barbecue spot", "Forest country", "Easy to reach"],
+      de: ["Grillplatz", "Waldgegend", "Leicht erreichbar"]
+    },
     lank: "https://skanskalandskap.se/"
   },
   {
@@ -543,8 +847,16 @@ const vindskydd = [
     kommun: "Östra Göinge",
     lat: 56.245, lng: 14.335,
     emoji: "🛶",
-    beskrivning: "Vindskydd längs vandringsleden och Skåneleden vid sjön Immeln — Skånes tredje största sjö och ett paradis för paddling med hundratals öar.",
-    fakta: ["Vid sjö", "Kanotvatten", "Skåneleden SL1"],
+    beskrivning: {
+      sv: "Vindskydd längs vandringsleden och Skåneleden vid sjön Immeln — Skånes tredje största sjö och ett paradis för paddling med hundratals öar.",
+      en: "Shelter along the hiking trail and Skåneleden by lake Immeln — Skåne's third largest lake and a paddling paradise with hundreds of islands.",
+      de: "Schutzhütte am Wanderweg und Skåneleden am See Immeln — Schonens drittgrößter See und ein Paddelparadies mit Hunderten von Inseln."
+    },
+    fakta: {
+      sv: ["Vid sjö", "Kanotvatten", "Skåneleden SL1"],
+      en: ["Lakeside", "Canoe waters", "Skåneleden SL1"],
+      de: ["Am See", "Kanurevier", "Skåneleden SL1"]
+    },
     lank: "https://skanskalandskap.se/"
   },
   {
@@ -552,8 +864,16 @@ const vindskydd = [
     kommun: "Kristianstad",
     lat: 55.868, lng: 14.263,
     emoji: "🏖️",
-    beskrivning: "Öppen sova ute-plats i tallskogen bakom sanddynerna vid Hanöbukten. Somna till havsbrus, ta ett morgondopp i Östersjön.",
-    fakta: ["Vid havet", "Tallskog", "Sandstrand"],
+    beskrivning: {
+      sv: "Öppen sova ute-plats i tallskogen bakom sanddynerna vid Hanöbukten. Somna till havsbrus, ta ett morgondopp i Östersjön.",
+      en: "Open sleep-outdoors site in the pine forest behind the dunes by Hanöbukten bay. Fall asleep to the sound of the sea and take a morning dip in the Baltic.",
+      de: "Offener Draußen-Schlafplatz im Kiefernwald hinter den Dünen an der Hanöbucht. Schlaf zum Meeresrauschen ein und nimm ein Morgenbad in der Ostsee."
+    },
+    fakta: {
+      sv: ["Vid havet", "Tallskog", "Sandstrand"],
+      en: ["By the sea", "Pine forest", "Sandy beach"],
+      de: ["Am Meer", "Kiefernwald", "Sandstrand"]
+    },
     lank: "https://skanskalandskap.se/"
   }
 ];
@@ -564,8 +884,16 @@ const hyddor = [
     kommun: "Höör",
     lat: 55.953, lng: 13.456,
     emoji: "🛖",
-    beskrivning: "Sex ullhyddor djupt inne i bokskogen — sköna sängar, handmålade detaljer, takfönster mot trädkronorna och matlagning över öppen eld. El saknas helt, och det är hela poängen.",
-    fakta: ["Ullhyddor", "Utan el", "Matlagning över eld"],
+    beskrivning: {
+      sv: "Sex ullhyddor djupt inne i bokskogen — sköna sängar, handmålade detaljer, takfönster mot trädkronorna och matlagning över öppen eld. El saknas helt, och det är hela poängen.",
+      en: "Six wool-felt huts deep in the beech forest — comfy beds, hand-painted details, skylights facing the treetops and cooking over an open fire. There is no electricity at all, and that is the whole point.",
+      de: "Sechs Wollfilz-Hütten tief im Buchenwald — bequeme Betten, handbemalte Details, Dachfenster zu den Baumkronen und Kochen über offenem Feuer. Strom gibt es gar keinen — und genau das ist der Punkt."
+    },
+    fakta: {
+      sv: ["Ullhyddor", "Utan el", "Matlagning över eld"],
+      en: ["Felt huts", "No electricity", "Cooking over fire"],
+      de: ["Filzhütten", "Ohne Strom", "Kochen am Feuer"]
+    },
     lank: "https://www.svenskaturistforeningen.se/boende/stf-nyrups-naturhotell/"
   },
   {
@@ -573,8 +901,16 @@ const hyddor = [
     kommun: "Ringsjön, Höör",
     lat: 55.883, lng: 13.489,
     emoji: "🛟",
-    beskrivning: "Ekologiska lyxigloos som flyter på Ringsjön, med panoramafönster mot vattnet och egen badbrygga. Hoppa i sjön direkt från sovrummet.",
-    fakta: ["Flytande", "Panoramautsikt", "Egen badbrygga"],
+    beskrivning: {
+      sv: "Ekologiska lyxigloos som flyter på Ringsjön, med panoramafönster mot vattnet och egen badbrygga. Hoppa i sjön direkt från sovrummet.",
+      en: "Eco luxury igloos floating on lake Ringsjön, with panoramic windows facing the water and a private bathing jetty. Jump into the lake straight from your bedroom.",
+      de: "Ökologische Luxus-Iglus, die auf dem Ringsjön schwimmen, mit Panoramafenstern zum Wasser und eigenem Badesteg. Spring direkt vom Schlafzimmer aus in den See."
+    },
+    fakta: {
+      sv: ["Flytande", "Panoramautsikt", "Egen badbrygga"],
+      en: ["Floating", "Panoramic view", "Private jetty"],
+      de: ["Schwimmend", "Panoramablick", "Eigener Badesteg"]
+    },
     lank: "https://www.campanyon.com/sv/l/sverige/skane/camping/glamping"
   },
   {
@@ -582,8 +918,16 @@ const hyddor = [
     kommun: "Genarp, Lund",
     lat: 55.598, lng: 13.399,
     emoji: "🕳️",
-    beskrivning: "Bo i en grotta som ser ut att vara hämtad ur Sagan om ringen — hobbitliknande boenden insprängda i landskapet nära Häckeberga.",
-    fakta: ["Grottboende", "Sagomiljö", "Familjefavorit"],
+    beskrivning: {
+      sv: "Bo i en grotta som ser ut att vara hämtad ur Sagan om ringen — hobbitliknande boenden insprängda i landskapet nära Häckeberga.",
+      en: "Stay in a cave that looks straight out of The Lord of the Rings — hobbit-like dwellings built into the landscape near Häckeberga.",
+      de: "Übernachte in einer Höhle wie aus dem Herrn der Ringe — hobbitartige Unterkünfte, in die Landschaft bei Häckeberga eingebettet."
+    },
+    fakta: {
+      sv: ["Grottboende", "Sagomiljö", "Familjefavorit"],
+      en: ["Cave stay", "Fairy-tale setting", "Family favourite"],
+      de: ["Höhlenwohnung", "Märchenkulisse", "Familienliebling"]
+    },
     lank: "https://www.visitmittskane.se/en/inspiration/stay-in-a-cave-an-igloo-or-among-the-trees/"
   },
   {
@@ -591,8 +935,16 @@ const hyddor = [
     kommun: "Mellersta Skåne",
     lat: 55.935, lng: 13.66,
     emoji: "🦌",
-    beskrivning: "Tältstugor mitt i naturen med kronhjortar som närmsta grannar. Safari-känsla på skånska.",
-    fakta: ["Tältstugor", "Kronhjortar", "Glamping"],
+    beskrivning: {
+      sv: "Tältstugor mitt i naturen med kronhjortar som närmsta grannar. Safari-känsla på skånska.",
+      en: "Tent cabins in the middle of nature with red deer as your nearest neighbours. Safari vibes, Skåne style.",
+      de: "Zelthütten mitten in der Natur mit Rothirschen als nächsten Nachbarn. Safari-Gefühl auf Schonisch."
+    },
+    fakta: {
+      sv: ["Tältstugor", "Kronhjortar", "Glamping"],
+      en: ["Tent cabins", "Red deer", "Glamping"],
+      de: ["Zelthütten", "Rothirsche", "Glamping"]
+    },
     lank: "https://www.visitmittskane.se/en/inspiration/stay-in-a-cave-an-igloo-or-among-the-trees/"
   },
   {
@@ -600,8 +952,16 @@ const hyddor = [
     kommun: "Sjöbo",
     lat: 55.556, lng: 13.703,
     emoji: "🏡",
-    beskrivning: "Mysiga stugor i Snogeholms strövområde, omgivna av skog och sjöar mitt på Österlenleden. Lugn, fiske och fina vandringar runt knuten.",
-    fakta: ["Stugor", "Vid sjö", "Skåneleden SL4"],
+    beskrivning: {
+      sv: "Mysiga stugor i Snogeholms strövområde, omgivna av skog och sjöar mitt på Österlenleden. Lugn, fiske och fina vandringar runt knuten.",
+      en: "Cosy cabins in the Snogeholm recreation area, surrounded by forest and lakes right on the Österlen trail. Peace and quiet, fishing and lovely walks on your doorstep.",
+      de: "Gemütliche Hütten im Erholungsgebiet Snogeholm, umgeben von Wald und Seen direkt am Österlen-Weg. Ruhe, Angeln und schöne Wanderungen vor der Tür."
+    },
+    fakta: {
+      sv: ["Stugor", "Vid sjö", "Skåneleden SL4"],
+      en: ["Cabins", "Lakeside", "Skåneleden SL4"],
+      de: ["Hütten", "Am See", "Skåneleden SL4"]
+    },
     lank: "https://www.destinationsnogeholm.se/"
   }
 ];
@@ -610,7 +970,7 @@ const hyddor = [
 const karta = L.map("karta").setView([55.95, 13.55], 8);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 18,
-  attribution: '&copy; OpenStreetMap-bidragsgivare'
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(karta);
 L.control.scale({ imperial: false }).addTo(karta);
 
@@ -685,34 +1045,35 @@ function kopplaLager(boxId, lagerEllerBygg, paDirekt) {
 }
 
 // Utvalda platser har beskrivning och fakta i datan — visa dem i popupen.
-function rikPopup(p, etikett) {
+// Popupen byggs vid öppning och hämtar då texten för det aktiva språket.
+function rikPopup(p, etikettNyckel) {
   const ikon = p.emoji === "🔥" ? eldSvg : p.emoji;
-  const chips = p.fakta.map(f => `<span class="chip">${f}</span>`).join("");
-  return `<strong>${ikon} ${p.namn}</strong><br>${p.kommun} · ${etikett}` +
-    `<p class="popup-beskrivning">${p.beskrivning}</p>` +
+  const chips = oversatt(p.fakta).map(f => `<span class="chip">${f}</span>`).join("");
+  return `<strong>${ikon} ${p.namn}</strong><br>${p.kommun} · ${t(etikettNyckel)}` +
+    `<p class="popup-beskrivning">${oversatt(p.beskrivning)}</p>` +
     `<div class="chips">${chips}</div>` +
-    `<div class="popup-lankar"><a href="${p.lank}" target="_blank" rel="noopener">Läs mer</a></div>`;
+    `<div class="popup-lankar"><a href="${p.lank}" target="_blank" rel="noopener">${t("lasMer")}</a></div>`;
 }
-function laggTillMarkorer(lista, kantFarg, etikett) {
+function laggTillMarkorer(lista, kantFarg, etikettNyckel) {
   const grupp = L.layerGroup();
   lista.forEach(p => {
     const ikon = p.emoji === "🔥" ? eldSvg : p.emoji;
     L.marker([p.lat, p.lng], { icon: emojiIkon(ikon, kantFarg) })
-      .bindPopup(() => rikPopup(p, etikett), { maxWidth: 290 })
+      .bindPopup(() => rikPopup(p, etikettNyckel), { maxWidth: 290 })
       .addTo(grupp);
   });
   return grupp;
 }
-const lagerUtvalda = laggTillMarkorer(vindskydd, "#2d4a35", "Gratis vindskydd");
-const lagerHyddor = laggTillMarkorer(hyddor, "#3a6b8a", "Hydda att hyra");
+const lagerUtvalda = laggTillMarkorer(vindskydd, "#2d4a35", "gratisVindskydd");
+const lagerHyddor = laggTillMarkorer(hyddor, "#3a6b8a", "hyddaAttHyra");
 kopplaLager("visa-utvalda", lagerUtvalda, true);
 kopplaLager("visa-hyddor", lagerHyddor, true);
 
 // ---------- Alla OSM-platser i Skåne (klustrade) ----------
 function osmPopup(p) {
-  const namn = p.n || (p.t === "vindskydd" ? "Vindskydd" : "Grillplats");
+  const typ = t(p.t === "vindskydd" ? "vindskydd" : "grillplats");
+  const namn = p.n || typ;
   const ikon = p.t === "vindskydd" ? "⛺" : `<span style="display:inline-block;vertical-align:-2px;">${eldSvg}</span>`;
-  const typ = p.t === "vindskydd" ? "Vindskydd" : "Grillplats";
   return `<strong>${ikon} ${namn}</strong>` + (p.n ? `<br>${typ}` : "");
 }
 function byggKluster(lista, farg) {
@@ -742,13 +1103,15 @@ function laggTillPlatsKontroll(map) {
     onAdd() {
       const knapp = L.DomUtil.create("button", "plats-knapp");
       knapp.innerHTML = "📍";
-      knapp.title = "Följ min plats";
+      knapp.title = t("platsFolj");
+      knapp.dataset.i18nTitle = "platsFolj";
       const stoppa = () => {
         aktiv = false;
         map.stopLocate();
         knapp.innerHTML = "📍";
         knapp.classList.remove("aktiv");
-        knapp.title = "Följ min plats";
+        knapp.title = t("platsFolj");
+        knapp.dataset.i18nTitle = "platsFolj";
         if (markor) {
           map.removeLayer(markor);
           map.removeLayer(cirkel);
@@ -767,12 +1130,13 @@ function laggTillPlatsKontroll(map) {
         if (!aktiv) return;
         knapp.innerHTML = "📍";
         knapp.classList.add("aktiv");
-        knapp.title = "Sluta följa min plats";
+        knapp.title = t("platsSluta");
+        knapp.dataset.i18nTitle = "platsSluta";
         if (forstaTraff) map.setView(e.latlng, Math.max(map.getZoom(), 14));
         if (!markor) {
           cirkel = L.circle(e.latlng, { radius: e.accuracy / 2, color: "#2166ac", weight: 1, fillOpacity: 0.12 }).addTo(map);
           markor = L.circleMarker(e.latlng, { radius: 8, color: "#fff", weight: 2.5, fillColor: "#2166ac", fillOpacity: 1 })
-            .bindPopup("<strong>📍 Här är du!</strong>")
+            .bindPopup(() => `<strong>${t("harArDu")}</strong>`)
             .addTo(map);
           if (forstaTraff) markor.openPopup();
         } else {
@@ -783,7 +1147,7 @@ function laggTillPlatsKontroll(map) {
       });
       map.on("locationerror", () => {
         stoppa();
-        alert("Kunde inte hämta din plats. Kontrollera att platstjänster är tillåtna i webbläsaren.");
+        alert(t("alertPlats"));
       });
       return knapp;
     }
@@ -793,13 +1157,14 @@ function laggTillPlatsKontroll(map) {
 laggTillPlatsKontroll(karta);
 
 // ---------- Fullskärm & filtermeny ----------
-function knappKontroll(map, position, html, titel, vidKlick) {
+function knappKontroll(map, position, html, titelNyckel, vidKlick) {
   const Kontroll = L.Control.extend({
     options: { position },
     onAdd() {
       const knapp = L.DomUtil.create("button", "plats-knapp");
       knapp.innerHTML = html;
-      knapp.title = titel;
+      knapp.title = t(titelNyckel);
+      knapp.dataset.i18nTitle = titelNyckel;
       L.DomEvent.disableClickPropagation(knapp);
       L.DomEvent.on(knapp, "click", vidKlick);
       return knapp;
@@ -807,22 +1172,22 @@ function knappKontroll(map, position, html, titel, vidKlick) {
   });
   map.addControl(new Kontroll());
 }
-knappKontroll(karta, "topright", "&#9776;", "Filter och lager", () => {
+knappKontroll(karta, "topright", "&#9776;", "filterKnapp", () => {
   stangIntro();
   document.getElementById("filter-panel").classList.toggle("dold");
 });
-knappKontroll(karta, "topright", "&#x26F6;", "Fullskärm", () => {
+knappKontroll(karta, "topright", "&#x26F6;", "fullskarm", () => {
   const wrap = document.getElementById("karta-wrap");
   if (document.fullscreenElement) {
     document.exitFullscreen();
   } else {
     wrap.requestFullscreen().catch(() => {
       window.__fsFel = true;
-      alert("Fullskärm blockerades av webbläsaren.");
+      alert(t("alertFullskarm"));
     });
   }
 });
-knappKontroll(karta, "topright", "&#128424;", "Skriv ut kartvyn", () => {
+knappKontroll(karta, "topright", "&#128424;", "skrivUt", () => {
   document.body.classList.add("utskriftslage");
   karta.invalidateSize();
   // Ge nya kartrutor en stund att laddas innan utskriftsdialogen öppnas
@@ -888,10 +1253,10 @@ kopplaLager("visa-leder", lederLager, false);
 // Kategori-info används både av sektionslagren här och av
 // sevärdhets-/butikslagren längre ner.
 const sevInfo = {
-  utsikt: { namn: "Utsiktspunkt", emoji: "🔭", farg: "#0b7285" },
-  slott: { namn: "Slott/borg", emoji: "🏰", farg: "#9c36b5" },
-  fornminne: { namn: "Fornminne", emoji: "🗿", farg: "#795548" },
-  ovrigt: { namn: "Sevärdhet", emoji: "📸", farg: "#e64980" }
+  utsikt: { namn: { sv: "Utsiktspunkt", en: "Viewpoint", de: "Aussichtspunkt" }, emoji: "🔭", farg: "#0b7285" },
+  slott: { namn: { sv: "Slott/borg", en: "Castle/fort", de: "Schloss/Burg" }, emoji: "🏰", farg: "#9c36b5" },
+  fornminne: { namn: { sv: "Fornminne", en: "Ancient monument", de: "Vorgeschichtliche Stätte" }, emoji: "🗿", farg: "#795548" },
+  ovrigt: { namn: { sv: "Sevärdhet", en: "Sight", de: "Sehenswürdigkeit" }, emoji: "📸", farg: "#e64980" }
 };
 const kedjeInfo = {
   ica: { namn: "ICA", farg: "#e3000b" },
@@ -900,17 +1265,18 @@ const kedjeInfo = {
   willys: { namn: "Willys", farg: "#1d1d1b" },
   hemkop: { namn: "Hemköp", farg: "#e87b00" },
   citygross: { namn: "City Gross", farg: "#003da5" },
-  ovrig: { namn: "Övrig butik", farg: "#7d7d7d" }
+  ovrig: { namn: { sv: "Övrig butik", en: "Other store", de: "Sonstiger Laden" }, farg: "#7d7d7d" }
 };
 const slInfo = {
-  SL1: { farg: "#c0392b", namn: "SL1 Kust till kustleden" },
-  SL2: { farg: "#2166ac", namn: "SL2 Nord till sydleden" },
-  SL3: { farg: "#35978f", namn: "SL3 Ås till åsleden" },
-  SL4: { farg: "#e08214", namn: "SL4 Österlenleden" },
-  SL5: { farg: "#762a83", namn: "SL5 Öresundsleden" },
-  SL6: { farg: "#8c510a", namn: "SL6 Vattenriket" },
-  SL7: { farg: "#c2185b", namn: "SL7 Sydkustleden" }
+  SL1: { farg: "#c0392b", namn: { sv: "SL1 Kust till kustleden", en: "SL1 Coast to Coast Trail", de: "SL1 Küste-zu-Küste-Weg" } },
+  SL2: { farg: "#2166ac", namn: { sv: "SL2 Nord till sydleden", en: "SL2 North to South Trail", de: "SL2 Nord-Süd-Weg" } },
+  SL3: { farg: "#35978f", namn: { sv: "SL3 Ås till åsleden", en: "SL3 Ridge to Ridge Trail", de: "SL3 Grat-zu-Grat-Weg" } },
+  SL4: { farg: "#e08214", namn: { sv: "SL4 Österlenleden", en: "SL4 Österlen Trail", de: "SL4 Österlen-Weg" } },
+  SL5: { farg: "#762a83", namn: { sv: "SL5 Öresundsleden", en: "SL5 Öresund Trail", de: "SL5 Öresund-Weg" } },
+  SL6: { farg: "#8c510a", namn: { sv: "SL6 Vattenriket", en: "SL6 Vattenriket", de: "SL6 Vattenriket" } },
+  SL7: { farg: "#c2185b", namn: { sv: "SL7 Sydkustleden", en: "SL7 South Coast Trail", de: "SL7 Südküsten-Weg" } }
 };
+const slNamn = s => oversatt((slInfo[s] || {}).namn || { sv: s });
 // Lederna ritas på canvas i stället för SVG — mycket billigare att panorera
 // och zooma på mobil. tolerance ger stor träffyta för finger och mus utan
 // den extra osynliga klicklinje som tidigare dubblade antalet linjer.
@@ -919,9 +1285,9 @@ function byggSkaneleden(vikt, bbox, sektion) {
   const grupp = L.layerGroup();
   skaneledenEtapper.forEach(e => {
     if (sektion && e.s !== sektion) return;
-    const info = slInfo[e.s] || { farg: "#e08214", namn: e.s };
-    const popup = `<strong>${e.n}</strong><br>${info.namn}${e.d ? " · " + e.d + " km" : ""}` +
-      (e.w ? `<br><a href="${e.w}" target="_blank" rel="noopener">Etappinfo på skaneleden.se</a>` : "");
+    const info = slInfo[e.s] || { farg: "#e08214" };
+    const popup = () => `<strong>${e.n}</strong><br>${slNamn(e.s)}${e.d ? " · " + e.d + " km" : ""}` +
+      (e.w ? `<br><a href="${e.w}" target="_blank" rel="noopener">${t("etappinfo")}</a>` : "");
     // Alla etappens segment hålls ihop så hela etappen kan markeras vid klick
     const etappLinjer = [];
     const markera = () => etappLinjer.forEach(l => {
@@ -1026,34 +1392,34 @@ function byggSektionsLager(s) {
     if (grill) {
       ihopslagna.add(grill);
       markorer.vindskydd.push(L.marker([p.la, p.lo], { icon: kombiIkon() })
-        .bindPopup(() => `<strong>⛺ ${p.n || "Vindskydd"}</strong><br>Vindskydd med grillplats<br><em>Nära ${slInfo[s].namn}</em>`));
+        .bindPopup(() => `<strong>⛺ ${p.n || t("vindskydd")}</strong><br>${t("vindskyddMedGrill")}<br><em>${t("nara")} ${slNamn(s)}</em>`));
     } else {
       markorer.vindskydd.push(L.marker([p.la, p.lo], { icon: konturIkon("⛺", slInfo[s].farg) })
-        .bindPopup(() => osmPopup(p) + `<br><em>Nära ${slInfo[s].namn}</em>`));
+        .bindPopup(() => osmPopup(p) + `<br><em>${t("nara")} ${slNamn(s)}</em>`));
     }
   });
   naraOsm.forEach(p => {
     if (p.t !== "grill" || ihopslagna.has(p)) return;
     markorer.grill.push(L.marker([p.la, p.lo], { icon: konturIkon(eldSvg, slInfo[s].farg) })
-      .bindPopup(() => osmPopup(p) + `<br><em>Nära ${slInfo[s].namn}</em>`));
+      .bindPopup(() => osmPopup(p) + `<br><em>${t("nara")} ${slNamn(s)}</em>`));
   });
   platserNaraSektion(s, 1000, matButiker).forEach(b => {
     const info = kedjeInfo[b.k];
     markorer.butik.push(L.marker([b.la, b.lo], { icon: konturIkon("🛒", info.farg) })
-      .bindPopup(() => `<strong>🛒 ${b.n || info.namn}</strong><br>${info.namn}<br><em>Nära ${slInfo[s].namn}</em>`));
+      .bindPopup(() => `<strong>🛒 ${b.n || oversatt(info.namn)}</strong><br>${oversatt(info.namn)}<br><em>${t("nara")} ${slNamn(s)}</em>`));
   });
   platserNaraSektion(s, 1000, gardsButiker).forEach(b => {
     markorer.gardsbutik.push(L.marker([b.la, b.lo], { icon: konturIkon("🧺", "#5c940d") })
-      .bindPopup(() => `<strong>🧺 ${b.n || "Gårdsbutik"}</strong><br>Gårdsbutik<br><em>Nära ${slInfo[s].namn}</em>`));
+      .bindPopup(() => `<strong>🧺 ${b.n || t("gardsbutik")}</strong><br>${t("gardsbutik")}<br><em>${t("nara")} ${slNamn(s)}</em>`));
   });
   platserNaraSektion(s, 1000, vattenPunkter).forEach(p => {
     markorer.vatten.push(L.marker([p.la, p.lo], { icon: konturIkon("💧", slInfo[s].farg) })
-      .bindPopup(() => `<strong>💧 ${p.n || "Dricksvatten"}</strong><br><em>Nära ${slInfo[s].namn}</em>`));
+      .bindPopup(() => `<strong>💧 ${p.n || t("dricksvatten")}</strong><br><em>${t("nara")} ${slNamn(s)}</em>`));
   });
   platserNaraSektion(s, 1000, sevardheter).forEach(p => {
     const info = sevInfo[p.k];
     markorer.sevardhet.push(L.marker([p.la, p.lo], { icon: konturIkon(info.emoji, slInfo[s].farg) })
-      .bindPopup(() => `<strong>${info.emoji} ${p.n || info.namn}</strong><br>${info.namn}<br><em>Nära ${slInfo[s].namn}</em>`));
+      .bindPopup(() => `<strong>${info.emoji} ${p.n || oversatt(info.namn)}</strong><br>${oversatt(info.namn)}<br><em>${t("nara")} ${slNamn(s)}</em>`));
   });
   const delar = [byggSkaneleden(3, null, s)];
   Object.keys(kluster).forEach(k => {
@@ -1082,13 +1448,13 @@ document.getElementById("antal-bussar").textContent = bussHallplatser.length;
 const arHandhallen = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
   (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform));
 function bussPopup(p) {
-  const namn = p.n || "Busshållplats";
+  const namn = p.n || t("busshallplats");
   const appUrl = p.g
     ? "https://app.skanetrafiken.se/Journey?toPointId=9021012" + String(p.g).padStart(6, "0") + "000&toPointType=STOP_AREA"
     : "https://app.skanetrafiken.se/Journey";
   const resa = arHandhallen
-    ? `<a class="resa-knapp" href="${appUrl}" target="_blank" rel="noopener">${p.g ? "Sök resa hit i appen" : "Sök resa i appen"}</a>`
-    : `<a class="resa-knapp" href="https://www.skanetrafiken.se/sok-resa/" target="_blank" rel="noopener">Sök resa hos Skånetrafiken</a>`;
+    ? `<a class="resa-knapp" href="${appUrl}" target="_blank" rel="noopener">${t(p.g ? "sokResaHit" : "sokResaApp")}</a>`
+    : `<a class="resa-knapp" href="https://www.skanetrafiken.se/sok-resa/" target="_blank" rel="noopener">${t("sokResaWebb")}</a>`;
   return `<strong>🚌 ${namn}</strong><br>${resa}`;
 }
 kopplaLager("visa-bussar", () => {
@@ -1115,7 +1481,7 @@ kopplaLager("visa-vatten", () => {
   const klusterVatten = L.markerClusterGroup({ maxClusterRadius: 46, showCoverageOnHover: false, chunkedLoading: true });
   klusterVatten.addLayers(vattenPunkter.map(p =>
     L.marker([p.la, p.lo], { icon: emojiIkon("💧", "#1c7ed6") })
-      .bindPopup(() => `<strong>💧 ${p.n || "Dricksvatten"}</strong>`)
+      .bindPopup(() => `<strong>💧 ${p.n || t("dricksvatten")}</strong>`)
   ));
   return klusterVatten;
 }, false);
@@ -1129,7 +1495,7 @@ Object.keys(sevInfo).forEach(kat => {
     const kluster = L.markerClusterGroup({ maxClusterRadius: 46, showCoverageOnHover: false, chunkedLoading: true });
     kluster.addLayers(platser.map(p =>
       L.marker([p.la, p.lo], { icon: emojiIkon(info.emoji, info.farg) })
-        .bindPopup(() => `<strong>${info.emoji} ${p.n || info.namn}</strong>${p.n ? "<br>" + info.namn : ""}`)
+        .bindPopup(() => `<strong>${info.emoji} ${p.n || oversatt(info.namn)}</strong>${p.n ? "<br>" + oversatt(info.namn) : ""}`)
     ));
     return kluster;
   }, false);
@@ -1144,7 +1510,7 @@ Object.keys(kedjeInfo).forEach(k => {
     const kluster = L.markerClusterGroup({ maxClusterRadius: 46, showCoverageOnHover: false, chunkedLoading: true });
     kluster.addLayers(butiker.map(b =>
       L.marker([b.la, b.lo], { icon: emojiIkon("🛒", info.farg) })
-        .bindPopup(() => `<strong>🛒 ${b.n || info.namn}</strong><br>${info.namn}`)
+        .bindPopup(() => `<strong>🛒 ${b.n || oversatt(info.namn)}</strong><br>${oversatt(info.namn)}`)
     ));
     return kluster;
   }, false);
@@ -1156,7 +1522,7 @@ kopplaLager("visa-gardsbutik", () => {
   const klusterGardsbutiker = L.markerClusterGroup({ maxClusterRadius: 46, showCoverageOnHover: false, chunkedLoading: true });
   klusterGardsbutiker.addLayers(gardsButiker.map(b =>
     L.marker([b.la, b.lo], { icon: emojiIkon("🧺", "#5c940d") })
-      .bindPopup(() => `<strong>🧺 ${b.n || "Gårdsbutik"}</strong><br>Gårdsbutik`)
+      .bindPopup(() => `<strong>🧺 ${b.n || t("gardsbutik")}</strong><br>${t("gardsbutik")}`)
   ));
   return klusterGardsbutiker;
 }, false);
@@ -1164,31 +1530,56 @@ kopplaLager("visa-gardsbutik", () => {
 // Bokskogen på översiktskartan (ingår i "Utvalda vindskydd")
 L.marker([55.562, 13.213], { icon: emojiIkon("🌳", "#2d4a35") })
   .addTo(lagerUtvalda)
-  .bindPopup('<strong>🌳 Bokskogen i Torup</strong><br>Svedala · 6 vindskydd &amp; många grillplatser — zooma in för att se dem');
+  .bindPopup(() => t("bokskogenPopup"));
 
 // ---------- Statistik i heron ----------
-document.getElementById("stat-platser").textContent = osmPlatser.length.toLocaleString("sv-SE");
-document.getElementById("stat-bussar").textContent = bussHallplatser.length.toLocaleString("sv-SE");
+// Talformatet (tusentalsavgränsare) följer det aktiva språket.
+function uppdateraStatistik() {
+  const lokal = { sv: "sv-SE", en: "en-GB", de: "de-DE" }[sprak];
+  document.getElementById("stat-platser").textContent = osmPlatser.length.toLocaleString(lokal);
+  document.getElementById("stat-bussar").textContent = bussHallplatser.length.toLocaleString(lokal);
+}
 
 // ---------- Ledkort under kartan ----------
 // Ett kort per slinga. Längderna är officiella cirkavärden från skaneleden.se —
 // datafilens etapplängder har blandade format och luckor. Antal vindskydd
 // inom 1 km räknas ur kartdatan ovan.
 const slKort = {
-  SL1: { km: "ca 370 km", strackning: "Sölvesborg–Ängelholm",
-         text: "Tvärs över norra Skåne från Östersjön till Kattegatt — djupa göingeskogar, mörka sjöar och långa pass av stillhet." },
-  SL2: { km: "ca 325 km", strackning: "Norr–Trelleborg",
-         text: "Genom hela Skåne från de norra skogsbygderna, via Frostavallens bokskogar och mittskånska sjöar, ner till havet vid Trelleborg." },
-  SL3: { km: "ca 160 km", strackning: "Söderåsen",
-         text: "Över de skånska åsarna — branta rasbranter, bokskogsklädda sluttningar och vida utsikter." },
-  SL4: { km: "ca 185 km", strackning: "Stenshuvud",
-         text: "Österlens hav, sandstränder, äppelodlingar och fiskelägen, med Stenshuvuds nationalpark som pärlan på snöret." },
-  SL5: { km: "ca 200 km", strackning: "Utvälinge–Malmö",
-         text: "Kustnära vandring längs Öresund med havsutsikt, fiskelägen och stadsnära natur — lätt att nå med kollektivtrafik." },
-  SL6: { km: "ca 190 km", strackning: "UNESCO-biosfärområde",
-         text: "Våtmarker, fågelrika strandängar och Helge å i Kristianstads Vattenrike." },
-  SL7: { km: "ca 65 km", strackning: "Trelleborg–Ystad",
-         text: "Sveriges sydligaste vandring — öppet hav, långa sandstränder och Smygehuk längs hela sydkusten." }
+  SL1: { km: { sv: "ca 370 km", en: "approx. 370 km", de: "ca. 370 km" },
+         strackning: "Sölvesborg–Ängelholm",
+         text: { sv: "Tvärs över norra Skåne från Östersjön till Kattegatt — djupa göingeskogar, mörka sjöar och långa pass av stillhet.",
+                 en: "Straight across northern Skåne from the Baltic to the Kattegat — deep Göinge forests, dark lakes and long stretches of stillness.",
+                 de: "Quer durch Nordschonen von der Ostsee zum Kattegat — tiefe Göinge-Wälder, dunkle Seen und lange Abschnitte voller Stille." } },
+  SL2: { km: { sv: "ca 325 km", en: "approx. 325 km", de: "ca. 325 km" },
+         strackning: { sv: "Norr–Trelleborg", en: "North–Trelleborg", de: "Norden–Trelleborg" },
+         text: { sv: "Genom hela Skåne från de norra skogsbygderna, via Frostavallens bokskogar och mittskånska sjöar, ner till havet vid Trelleborg.",
+                 en: "Through all of Skåne from the northern forests, via the beech woods of Frostavallen and the lakes of central Skåne, down to the sea at Trelleborg.",
+                 de: "Durch ganz Skåne von den nördlichen Waldgebieten über die Buchenwälder von Frostavallen und die Seen Mittelschonens hinunter ans Meer bei Trelleborg." } },
+  SL3: { km: { sv: "ca 160 km", en: "approx. 160 km", de: "ca. 160 km" },
+         strackning: "Söderåsen",
+         text: { sv: "Över de skånska åsarna — branta rasbranter, bokskogsklädda sluttningar och vida utsikter.",
+                 en: "Across the ridges of Skåne — steep scree slopes, beech-clad hillsides and wide views.",
+                 de: "Über die schonischen Höhenrücken — steile Hänge, buchenbewachsene Abhänge und weite Ausblicke." } },
+  SL4: { km: { sv: "ca 185 km", en: "approx. 185 km", de: "ca. 185 km" },
+         strackning: "Stenshuvud",
+         text: { sv: "Österlens hav, sandstränder, äppelodlingar och fiskelägen, med Stenshuvuds nationalpark som pärlan på snöret.",
+                 en: "Österlen's sea, sandy beaches, apple orchards and fishing villages, with Stenshuvud National Park as the pearl on the string.",
+                 de: "Österlens Meer, Sandstrände, Apfelplantagen und Fischerdörfer, mit dem Nationalpark Stenshuvud als Perle an der Schnur." } },
+  SL5: { km: { sv: "ca 200 km", en: "approx. 200 km", de: "ca. 200 km" },
+         strackning: "Utvälinge–Malmö",
+         text: { sv: "Kustnära vandring längs Öresund med havsutsikt, fiskelägen och stadsnära natur — lätt att nå med kollektivtrafik.",
+                 en: "Coastal walking along the Öresund with sea views, fishing villages and nature close to town — easy to reach by public transport.",
+                 de: "Küstenwandern am Öresund mit Meerblick, Fischerdörfern und stadtnaher Natur — gut mit Bus und Bahn erreichbar." } },
+  SL6: { km: { sv: "ca 190 km", en: "approx. 190 km", de: "ca. 190 km" },
+         strackning: { sv: "UNESCO-biosfärområde", en: "UNESCO biosphere reserve", de: "UNESCO-Biosphärenreservat" },
+         text: { sv: "Våtmarker, fågelrika strandängar och Helge å i Kristianstads Vattenrike.",
+                 en: "Wetlands, bird-rich coastal meadows and the river Helge å in Kristianstad's Vattenrike.",
+                 de: "Feuchtgebiete, vogelreiche Strandwiesen und der Fluss Helge å im Vattenrike von Kristianstad." } },
+  SL7: { km: { sv: "ca 65 km", en: "approx. 65 km", de: "ca. 65 km" },
+         strackning: "Trelleborg–Ystad",
+         text: { sv: "Sveriges sydligaste vandring — öppet hav, långa sandstränder och Smygehuk längs hela sydkusten.",
+                 en: "Sweden's southernmost hike — open sea, long sandy beaches and Smygehuk along the whole south coast.",
+                 de: "Schwedens südlichste Wanderung — offenes Meer, lange Sandstrände und Smygehuk entlang der ganzen Südküste." } }
 };
 // Klick tänder slingan om den är släckt, skrollar upp och zoomar till leden.
 const ledBoundsCache = {};
@@ -1213,24 +1604,28 @@ function visaLedPaKartan(s) {
   karta.flyToBounds(ledBoundsCache[s], { padding: [30, 30], duration: 1.2 });
 }
 const kortYta = document.getElementById("led-kort");
-Object.keys(slInfo).forEach(s => {
-  const info = slInfo[s], extra = slKort[s];
-  const kort = document.createElement("article");
-  kort.className = "led-kort";
-  kort.tabIndex = 0;
-  kort.innerHTML =
-    `<div class="kort-topp"><span class="prick" style="background:${info.farg};width:15px;height:15px;"></span>` +
-    `<span class="kort-typ" style="background:${info.farg};">${s}</span></div>` +
-    `<h3>${info.namn.replace(s + " ", "")}</h3>` +
-    `<div class="kort-meta">${extra.km} · ⛺ ${slAntalVindskydd[s]} vindskydd nära leden</div>` +
-    `<p>${extra.text}</p>` +
-    `<div class="chips"><span class="chip">${extra.strackning}</span></div>`;
-  kort.addEventListener("click", () => visaLedPaKartan(s));
-  kort.addEventListener("keydown", e => {
-    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); visaLedPaKartan(s); }
+// Korten byggs om vid språkbyte, därav funktionen.
+function byggLedKort() {
+  kortYta.innerHTML = "";
+  Object.keys(slInfo).forEach(s => {
+    const info = slInfo[s], extra = slKort[s];
+    const kort = document.createElement("article");
+    kort.className = "led-kort";
+    kort.tabIndex = 0;
+    kort.innerHTML =
+      `<div class="kort-topp"><span class="prick" style="background:${info.farg};width:15px;height:15px;"></span>` +
+      `<span class="kort-typ" style="background:${info.farg};">${s}</span></div>` +
+      `<h3>${slNamn(s).replace(s + " ", "")}</h3>` +
+      `<div class="kort-meta">${oversatt(extra.km)} · ⛺ ${slAntalVindskydd[s]} ${t("vindskyddNaraLeden")}</div>` +
+      `<p>${oversatt(extra.text)}</p>` +
+      `<div class="chips"><span class="chip">${oversatt(extra.strackning)}</span></div>`;
+    kort.addEventListener("click", () => visaLedPaKartan(s));
+    kort.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); visaLedPaKartan(s); }
+    });
+    kortYta.appendChild(kort);
   });
-  kortYta.appendChild(kort);
-});
+}
 
 // Markera/avmarkera alla lager
 function sattAllaLager(pa) {
@@ -1243,6 +1638,39 @@ function sattAllaLager(pa) {
 }
 document.getElementById("markera-alla").addEventListener("click", () => sattAllaLager(true));
 document.getElementById("avmarkera-alla").addEventListener("click", () => sattAllaLager(false));
+
+// ---------- Språkväxling ----------
+// Alla element med data-i18n/data-i18n-title (även kartknappar skapade i JS)
+// får sin text utbytt; ledkorten och statistiken byggs om. Öppna popuper
+// byggs om automatiskt nästa gång de öppnas eftersom innehållet är funktioner.
+document.querySelectorAll(".sprak-valjare").forEach(yta => {
+  SPRAK.forEach(kod => {
+    const knapp = document.createElement("button");
+    knapp.type = "button";
+    knapp.className = "sprak-knapp";
+    knapp.dataset.sprak = kod;
+    knapp.textContent = kod.toUpperCase();
+    knapp.addEventListener("click", () => sattSprak(kod));
+    yta.appendChild(knapp);
+  });
+});
+function uppdateraSprak() {
+  document.documentElement.lang = sprak;
+  document.title = t("titel");
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.innerHTML = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-title]").forEach(el => { el.title = t(el.dataset.i18nTitle); });
+  document.querySelectorAll(".sprak-knapp").forEach(k =>
+    k.classList.toggle("aktiv", k.dataset.sprak === sprak));
+  uppdateraStatistik();
+  byggLedKort();
+}
+function sattSprak(nytt) {
+  if (!SPRAK.includes(nytt) || nytt === sprak) return;
+  sprak = nytt;
+  localStorage.setItem("sprak", nytt);
+  uppdateraSprak();
+}
+uppdateraSprak();
 
 }); // slut på DOMContentLoaded
 </script>
