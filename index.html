@@ -350,6 +350,41 @@
     border-color: #2166ac;
   }
 
+  /* ---------- Sökpanel ---------- */
+  #sok-wrap { position: relative; }
+  #sok-panel {
+    display: none;
+    position: absolute;
+    left: 42px;
+    top: 0;
+    width: min(320px, calc(100vw - 80px));
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+    padding: 0.5rem;
+  }
+  #sok-wrap.oppen #sok-panel { display: block; }
+  #sok-falt {
+    width: 100%;
+    border: 1px solid var(--sand-mork);
+    border-radius: 8px;
+    padding: 0.45rem 0.6rem;
+    font-family: inherit;
+    font-size: 1rem; /* minst 16px så mobilen inte zoomar in i fältet */
+  }
+  #sok-falt:focus { outline: 2px solid var(--mossa); border-color: transparent; }
+  #sok-resultat { max-height: 45vh; overflow-y: auto; margin-top: 0.4rem; }
+  .sok-traff {
+    display: flex; align-items: center; gap: 0.55rem;
+    width: 100%; padding: 0.4rem 0.45rem;
+    border: none; background: none; border-radius: 8px;
+    font-family: inherit; font-size: 0.9rem; text-align: left;
+    line-height: 1.35; cursor: pointer;
+  }
+  .sok-traff:hover, .sok-traff:focus-visible { background: var(--sand); }
+  .sok-etikett { display: block; font-size: 0.76rem; color: var(--text-svag); }
+  .sok-tom { padding: 0.45rem; font-size: 0.88rem; color: var(--text-svag); }
+
   /* ---------- Intro vid första besöket ---------- */
   #intro-ruta {
     position: absolute;
@@ -705,6 +740,9 @@ const TEXTER = {
     footer: 'Byggd med kärlek till skånsk natur · Källor: <a href="https://skanskalandskap.se/">Stiftelsen Skånska Landskap</a>, <a href="https://www.skaneleden.se/">Skåneleden</a>, <a href="https://vindskyddskartan.se/">Vindskyddskartan</a> · Kartdata © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     platsFolj: "Följ min plats",
     platsSluta: "Sluta följa min plats",
+    sokKnapp: "Sök plats",
+    sokPlaceholder: "Sök plats, t.ex. Fulltofta …",
+    sokInga: "Inga träffar",
     filterKnapp: "Filter och lager",
     fullskarm: "Fullskärm",
     skrivUt: "Skriv ut kartvyn",
@@ -799,6 +837,9 @@ const TEXTER = {
     footer: 'Built with love for the nature of Skåne · Sources: <a href="https://skanskalandskap.se/">Stiftelsen Skånska Landskap</a>, <a href="https://www.skaneleden.se/">Skåneleden</a>, <a href="https://vindskyddskartan.se/">Vindskyddskartan</a> · Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     platsFolj: "Follow my location",
     platsSluta: "Stop following my location",
+    sokKnapp: "Search places",
+    sokPlaceholder: "Search places, e.g. Fulltofta …",
+    sokInga: "No results",
     filterKnapp: "Filters and layers",
     fullskarm: "Full screen",
     skrivUt: "Print the map view",
@@ -893,6 +934,9 @@ const TEXTER = {
     footer: 'Gebaut mit Liebe zur schonischen Natur · Quellen: <a href="https://skanskalandskap.se/">Stiftelsen Skånska Landskap</a>, <a href="https://www.skaneleden.se/">Skåneleden</a>, <a href="https://vindskyddskartan.se/">Vindskyddskartan</a> · Kartendaten © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     platsFolj: "Meinen Standort verfolgen",
     platsSluta: "Standortverfolgung beenden",
+    sokKnapp: "Ort suchen",
+    sokPlaceholder: "Ort suchen, z. B. Fulltofta …",
+    sokInga: "Keine Treffer",
     filterKnapp: "Filter und Ebenen",
     fullskarm: "Vollbild",
     skrivUt: "Kartenansicht drucken",
@@ -1158,7 +1202,9 @@ const hyddor = [
 ];
 
 // ---------- Karta ----------
-const karta = L.map("karta").setView([55.95, 13.55], 8);
+// Zoomkontrollen läggs till för hand efter sökknappen, så att sök hamnar
+// överst i vänstra hörnet — ovanför plusset.
+const karta = L.map("karta", { zoomControl: false }).setView([55.95, 13.55], 8);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 18,
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -1345,6 +1391,143 @@ function laggTillPlatsKontroll(map) {
   });
   map.addControl(new Kontroll());
 }
+
+// ---------- Sök plats ----------
+// Sökknappen ligger överst i vänstra hörnet, ovanför zoomknapparna. Indexet
+// spänner över alla datalager men byggs först när rutan öppnas första gången,
+// så sidstarten påverkas inte. Å/ä/ö viks ner till a/o så att "hoor" hittar
+// Höör oavsett tangentbord.
+const vikNer = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+function laggTillSokKontroll(map) {
+  let index = null;
+  // Etiketten kan vara en i18n-nyckel, ett flerspråkigt objekt eller ett
+  // vanligt namn (t.ex. "ICA") — texten hämtas vid ritning så språkbyte funkar.
+  const etikettText = e => typeof e === "string"
+    ? (TEXTER.sv[e] !== undefined ? t(e) : e)
+    : oversatt(e);
+  function byggIndex() {
+    const poster = [];
+    const laggTill = (namn, ikon, etikett, la, lo, extra) => {
+      if (!namn) return;
+      poster.push(Object.assign({ namn, ikon, etikett, la, lo, sok: vikNer(namn) }, extra));
+    };
+    vindskydd.forEach(p => laggTill(p.namn + ", " + p.kommun, p.emoji, "gratisVindskydd",
+      p.lat, p.lng, { popup: () => rikPopup(p, "gratisVindskydd") }));
+    hyddor.forEach(p => laggTill(p.namn + ", " + p.kommun, p.emoji, "hyddaAttHyra",
+      p.lat, p.lng, { popup: () => rikPopup(p, "hyddaAttHyra") }));
+    osmPlatser.forEach(p => laggTill(p.n, p.t === "vindskydd" ? "⛺" : eldSvg,
+      p.t === "vindskydd" ? "vindskydd" : "grillplats", p.la, p.lo, { popup: () => osmPopup(p) }));
+    sevardheter.forEach(p => laggTill(p.n, sevInfo[p.k].emoji, sevInfo[p.k].namn, p.la, p.lo));
+    vattenPunkter.forEach(p => laggTill(p.n, "💧", "dricksvatten", p.la, p.lo));
+    matButiker.forEach(b => laggTill(b.n, "🛒", kedjeInfo[b.k].namn, b.la, b.lo));
+    gardsButiker.forEach(b => laggTill(b.n, "🧺", "gardsbutik", b.la, b.lo));
+    bussHallplatser.forEach(p => laggTill(p.n, "🚌", "busshallplats", p.la, p.lo,
+      { popup: () => bussPopup(p) }));
+    skaneledenEtapper.forEach(e => {
+      let minLa = 90, maxLa = -90, minLo = 180, maxLo = -180;
+      e.l.forEach(seg => seg.forEach(p => {
+        if (p[0] < minLa) minLa = p[0];
+        if (p[0] > maxLa) maxLa = p[0];
+        if (p[1] < minLo) minLo = p[1];
+        if (p[1] > maxLo) maxLo = p[1];
+      }));
+      laggTill(e.n, "🥾", slInfo[e.s] ? slInfo[e.s].namn : e.s,
+        (minLa + maxLa) / 2, (minLo + maxLo) / 2,
+        { sektion: e.s, bounds: [[minLa, minLo], [maxLa, maxLo]] });
+    });
+    return poster;
+  }
+  const Kontroll = L.Control.extend({
+    options: { position: "topleft" },
+    onAdd() {
+      const wrap = L.DomUtil.create("div", "");
+      wrap.id = "sok-wrap";
+      wrap.innerHTML =
+        `<button class="plats-knapp" id="sok-knapp">&#128269;</button>` +
+        `<div id="sok-panel">` +
+        `<input id="sok-falt" type="search" autocomplete="off">` +
+        `<div id="sok-resultat"></div>` +
+        `</div>`;
+      const knapp = wrap.querySelector("#sok-knapp");
+      const falt = wrap.querySelector("#sok-falt");
+      const resultat = wrap.querySelector("#sok-resultat");
+      knapp.title = t("sokKnapp");
+      knapp.dataset.i18nTitle = "sokKnapp";
+      falt.placeholder = t("sokPlaceholder");
+      falt.dataset.i18nPlaceholder = "sokPlaceholder";
+      L.DomEvent.disableClickPropagation(wrap);
+      L.DomEvent.disableScrollPropagation(wrap);
+      const stang = () => {
+        wrap.classList.remove("oppen");
+        knapp.classList.remove("aktiv");
+      };
+      map.on("click", stang);
+      L.DomEvent.on(knapp, "click", () => {
+        if (wrap.classList.contains("oppen")) { stang(); return; }
+        wrap.classList.add("oppen");
+        knapp.classList.add("aktiv");
+        if (!index) index = byggIndex();
+        falt.focus();
+        falt.select();
+      });
+      function visaTraff(p) {
+        stang();
+        if (p.sektion) {
+          // En Skåneleden-etapp: tänd slingans lager och zooma in på etappen
+          const box = document.getElementById("visa-" + p.sektion.toLowerCase());
+          if (box && !box.checked) {
+            box.checked = true;
+            box.dispatchEvent(new Event("change"));
+          }
+          map.flyToBounds(p.bounds, { padding: [40, 40], duration: 1.2 });
+        } else {
+          map.flyTo([p.la, p.lo], Math.max(map.getZoom(), 15), { duration: 1.2 });
+          L.popup({ maxWidth: 290 })
+            .setLatLng([p.la, p.lo])
+            .setContent(p.popup ? p.popup() : `<strong>${p.ikon} ${p.namn}</strong><br>${etikettText(p.etikett)}`)
+            .openOn(map);
+        }
+      }
+      let traffar = [];
+      function sok() {
+        const q = vikNer(falt.value.trim());
+        resultat.innerHTML = "";
+        traffar = [];
+        if (q.length < 2) return;
+        const borjarMed = [], innehaller = [];
+        for (const p of index) {
+          const i = p.sok.indexOf(q);
+          if (i === 0) borjarMed.push(p);
+          else if (i > 0) innehaller.push(p);
+          if (borjarMed.length >= 30) break;
+        }
+        traffar = borjarMed.concat(innehaller).slice(0, 30);
+        if (!traffar.length) {
+          resultat.innerHTML = `<div class="sok-tom">${t("sokInga")}</div>`;
+          return;
+        }
+        traffar.forEach(p => {
+          const rad = document.createElement("button");
+          rad.type = "button";
+          rad.className = "sok-traff";
+          rad.innerHTML = `<span class="ikon-emoji">${p.ikon}</span>` +
+            `<span>${p.namn}<span class="sok-etikett">${etikettText(p.etikett)}</span></span>`;
+          rad.addEventListener("click", () => visaTraff(p));
+          resultat.appendChild(rad);
+        });
+      }
+      falt.addEventListener("input", sok);
+      falt.addEventListener("keydown", e => {
+        if (e.key === "Enter" && traffar.length) visaTraff(traffar[0]);
+        if (e.key === "Escape") stang();
+      });
+      return wrap;
+    }
+  });
+  map.addControl(new Kontroll());
+}
+laggTillSokKontroll(karta);
+L.control.zoom().addTo(karta);
 laggTillPlatsKontroll(karta);
 
 // ---------- Fullskärm & filtermeny ----------
@@ -1857,6 +2040,7 @@ function uppdateraSprak() {
   document.title = t("titel");
   document.querySelectorAll("[data-i18n]").forEach(el => { el.innerHTML = t(el.dataset.i18n); });
   document.querySelectorAll("[data-i18n-title]").forEach(el => { el.title = t(el.dataset.i18nTitle); });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
   document.querySelectorAll(".sprak-knapp").forEach(k =>
     k.classList.toggle("aktiv", k.dataset.sprak === sprak));
   uppdateraStatistik();
